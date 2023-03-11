@@ -61,7 +61,7 @@ def getPrices():
         # f.write(str(prices))
         # f.close()
 
-        prcslabel["text"] = str(prices)
+        prcslabel["text"] = f'{str(prices[0])} - {str(prices[-1])}'
 
     except TimeoutException:
         prcslabel["text"]="Ошибка загрузки!"
@@ -73,9 +73,17 @@ root = Tk()
 root.title("Анализ цен")
 root.geometry("300x250")
 
+explLabel = ttk.Label(text="Выберите категорию товаров:")
+explLabel.pack(anchor=NW)
+
+categories = ["Системные блоки", "Мониторы", "Клавиатуры"]
+ctgsBox = ttk.Combobox(values=categories)
+ctgsBox.pack(anchor=NW)
+
+
 btn = ttk.Button(text="Получить цены", command=getPrices)
-btn.pack()
+btn.pack(anchor=NW)
 prcslabel = ttk.Label()
-prcslabel.pack()
+prcslabel.pack(anchor=NW)
 
 root.mainloop()
