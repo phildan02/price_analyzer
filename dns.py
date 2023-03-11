@@ -65,11 +65,9 @@ def getPrices():
     driver.quit()
 
 
-def statusInfo():
-    prcsLabel["text"]="Идёт поиск цен..."
 
-def call_funcs():
-    statusInfo()
+def execution():
+    prcsLabel["text"]="Идёт поиск цен..."
     getPrices()
 
 
@@ -87,7 +85,7 @@ categories = ["Системные блоки", "Мониторы", "Клавиа
 ctgsBox = ttk.Combobox(values=categories)
 ctgsBox.pack(anchor=NW)
 
-getBtn = ttk.Button(text="Получить цены", command=call_funcs)
+getBtn = ttk.Button(text="Получить цены", command=execution)
 getBtn.pack(anchor=NW)
 
 root.mainloop()
