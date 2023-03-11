@@ -32,7 +32,7 @@ def getPrices():
         targetElem = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'product-buy__price')))
 
-        totalNumElems = int(driver.find_element(By.CLASS_NAME, 'products-count').text[:-8])
+        totalNumElems = int(driver.find_element(By.CLASS_NAME, 'products-count').text[:-6])
         numElems = 18
 
         if totalNumElems < numElems:
@@ -41,8 +41,8 @@ def getPrices():
         elems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
 
         while len(elems) != numElems:
-            elems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
             time.sleep(0.5)
+            elems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
             driver.execute_script("window.scrollBy(0, 800)")
 
 
@@ -57,21 +57,28 @@ def getPrices():
                 prices[i] = prices[i][:(index - 2)]
             else: i+=1
 
-        # f = open('data-dns.txt', 'w')
-        # f.write(str(prices))
-        # f.close()
-
-        prcslabel["text"] = f'{str(prices[0])} - {str(prices[-1])}'
+        prcsLabel["text"] = f'{str(prices[0])} - {str(prices[-1])}'
 
     except TimeoutException:
-        prcslabel["text"]="Ошибка загрузки!"
+        prcsLabel["text"]="Ошибка загрузки!"
 
     driver.quit()
+
+
+def statusInfo():
+    prcsLabel["text"]="Идёт поиск цен..."
+
+def call_funcs():
+    statusInfo()
+    getPrices()
 
 
 root = Tk()
 root.title("Анализ цен")
 root.geometry("300x250")
+
+prcsLabel = ttk.Label()
+prcsLabel.pack(anchor=NW)
 
 explLabel = ttk.Label(text="Выберите категорию товаров:")
 explLabel.pack(anchor=NW)
@@ -80,10 +87,7 @@ categories = ["Системные блоки", "Мониторы", "Клавиа
 ctgsBox = ttk.Combobox(values=categories)
 ctgsBox.pack(anchor=NW)
 
-
-btn = ttk.Button(text="Получить цены", command=getPrices)
-btn.pack(anchor=NW)
-prcslabel = ttk.Label()
-prcslabel.pack(anchor=NW)
+getBtn = ttk.Button(text="Получить цены", command=call_funcs)
+getBtn.pack(anchor=NW)
 
 root.mainloop()
