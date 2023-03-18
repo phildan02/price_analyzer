@@ -27,12 +27,17 @@ stealth(driver,
 
 
 def getPrices():
-    driver.get("https://www.dns-shop.ru/catalog/17a8932c16404e77/personalnye-kompyutery/")
+    driver.get("https://www.dns-shop.ru/catalog/17a8a01d16404e77/smartfony/?review=1")
     try:
         targetElem = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'product-buy__price')))
 
-        totalNumElems = int(driver.find_element(By.CLASS_NAME, 'products-count').text[:-6])
+        strTotalNumElems = driver.find_element(By.CLASS_NAME, 'products-count').text
+        if strTotalNumElems[-1] == "в":
+            totalNumElems = int(strTotalNumElems[:-8])
+        else:
+            totalNumElems = int(strTotalNumElems[:-7])
+        
         numElems = 18
 
         if totalNumElems < numElems:
