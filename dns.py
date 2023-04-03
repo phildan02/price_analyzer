@@ -156,34 +156,48 @@ mntrAllCheckbtn.grid(row=2, column=1, sticky=W)
 
 notebook = ttk.Notebook()
 notebook.pack(expand=True, fill=BOTH, padx=10, pady=[150, 10])
+notebook.rowconfigure(index=0, weight=1)
+notebook.columnconfigure(index=0, weight=1)
+notebook.columnconfigure(index=1, weight=1)
 
 
 columns = ("name", "price")
 tableDns = ttk.Treeview(notebook, columns=columns, show="headings")
-tableDns.pack()
+tableDns.grid(row=0, column=0)
 tableDns.heading("name", text="Наименование товара", anchor=W)
 tableDns.heading("price", text="Цена", anchor=W)
 monitor = ("Монитор AOC 24 LCD IPS", "13000")
 tableDns.insert("", END, values=monitor)
-tableDns.insert("", END, values=monitor)
+
+dnsScrollbar = ttk.Scrollbar(notebook, orient=VERTICAL, command=tableDns.yview)
+tableDns.configure(yscroll=dnsScrollbar.set)
+dnsScrollbar.grid(row=0, column=1, sticky='nese', pady=[20, 0])
+
 
 
 tableCitilink = ttk.Treeview(notebook, columns=columns, show="headings")
-tableCitilink.pack()
+tableCitilink.grid(row=0, column=0)
 tableCitilink.heading("name", text="Наименование товара", anchor=W)
 tableCitilink.heading("price", text="Цена", anchor=W)
 
+citilinkScrollbar = ttk.Scrollbar(notebook, orient=VERTICAL, command=tableCitilink.yview)
+tableCitilink.configure(yscroll=citilinkScrollbar.set)
+citilinkScrollbar.grid(row=0, column=1, sticky='nese', pady=[20, 0])
+
 
 tableMvideo = ttk.Treeview(notebook, columns=columns, show="headings")
-tableMvideo.pack()
+tableMvideo.grid(row=0, column=0)
 tableMvideo.heading("name", text="Наименование товара", anchor=W)
 tableMvideo.heading("price", text="Цена", anchor=W)
+
+mvideoScrollbar = ttk.Scrollbar(notebook, orient=VERTICAL, command=tableMvideo.yview)
+tableMvideo.configure(yscroll=mvideoScrollbar.set)
+mvideoScrollbar.grid(row=0, column=1, sticky='nese', pady=[20, 0])
 
 
 notebook.add(tableDns, text="DNS")
 notebook.add(tableCitilink, text="Ситилинк")
 notebook.add(tableMvideo, text="М.видео")
-
 
 
 getBtn = ttk.Button(text="Получить данные", padding=[5, 0], command=getPrices)
