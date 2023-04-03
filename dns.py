@@ -74,7 +74,7 @@ def getPrices():
 
 root = Tk()
 root.title("Анализ цен")
-root.geometry("500x200")
+root.geometry("600x600")
 
 ctgsExplLabel = ttk.Label(text="Категория:")
 ctgsExplLabel.place(x=10, y=10)
@@ -155,28 +155,29 @@ mntrAllCheckbtn.grid(row=2, column=1, sticky=W)
 
 
 notebook = ttk.Notebook()
-notebook.place(x=10, y=150)
+notebook.pack(expand=True, fill=BOTH, padx=10, pady=[150, 10])
+
 
 columns = ("name", "price")
-
 tableDns = ttk.Treeview(notebook, columns=columns, show="headings")
 tableDns.pack()
-tableDns.heading("name", text="Наименование товара")
-tableDns.heading("price", text="Цена")
+tableDns.heading("name", text="Наименование товара", anchor=W)
+tableDns.heading("price", text="Цена", anchor=W)
 monitor = ("Монитор AOC 24 LCD IPS", "13000")
+tableDns.insert("", END, values=monitor)
 tableDns.insert("", END, values=monitor)
 
 
 tableCitilink = ttk.Treeview(notebook, columns=columns, show="headings")
 tableCitilink.pack()
-tableCitilink.heading("name", text="Наименование товара")
-tableCitilink.heading("price", text="Цена")
+tableCitilink.heading("name", text="Наименование товара", anchor=W)
+tableCitilink.heading("price", text="Цена", anchor=W)
 
 
 tableMvideo = ttk.Treeview(notebook, columns=columns, show="headings")
 tableMvideo.pack()
-tableMvideo.heading("name", text="Наименование товара")
-tableMvideo.heading("price", text="Цена")
+tableMvideo.heading("name", text="Наименование товара", anchor=W)
+tableMvideo.heading("price", text="Цена", anchor=W)
 
 
 notebook.add(tableDns, text="DNS")
@@ -185,8 +186,8 @@ notebook.add(tableMvideo, text="М.видео")
 
 
 
-# getBtn = ttk.Button(text="Получить цены", command=getPrices)
-# getBtn.place(x=300, y=10)
+getBtn = ttk.Button(text="Получить данные", padding=[5, 0], command=getPrices)
+getBtn.place(x=440, y=47, height=83)
 
 
 root.mainloop()
