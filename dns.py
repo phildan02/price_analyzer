@@ -153,6 +153,38 @@ mntrAllCheckbtn = ttk.Checkbutton(brandFrame, text="Все", variable=mntrAllVar
 mntrAllCheckbtn.grid(row=2, column=1, sticky=W)
 
 
+
+notebook = ttk.Notebook()
+notebook.place(x=10, y=150)
+
+columns = ("name", "price")
+
+tableDns = ttk.Treeview(notebook, columns=columns, show="headings")
+tableDns.pack()
+tableDns.heading("name", text="Наименование товара")
+tableDns.heading("price", text="Цена")
+monitor = ("Монитор AOC 24 LCD IPS", "13000")
+tableDns.insert("", END, values=monitor)
+
+
+tableCitilink = ttk.Treeview(notebook, columns=columns, show="headings")
+tableCitilink.pack()
+tableCitilink.heading("name", text="Наименование товара")
+tableCitilink.heading("price", text="Цена")
+
+
+tableMvideo = ttk.Treeview(notebook, columns=columns, show="headings")
+tableMvideo.pack()
+tableMvideo.heading("name", text="Наименование товара")
+tableMvideo.heading("price", text="Цена")
+
+
+notebook.add(tableDns, text="DNS")
+notebook.add(tableCitilink, text="Ситилинк")
+notebook.add(tableMvideo, text="М.видео")
+
+
+
 # getBtn = ttk.Button(text="Получить цены", command=getPrices)
 # getBtn.place(x=300, y=10)
 
