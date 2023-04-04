@@ -7,6 +7,8 @@ from selenium_stealth import stealth
 import time
 from tkinter import *
 from tkinter import ttk
+import re
+
 
 options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
@@ -74,7 +76,7 @@ def getPrices():
 
 root = Tk()
 root.title("Анализ цен")
-root.geometry("600x600")
+root.geometry("600x300")
 
 ctgsExplLabel = ttk.Label(text="Категория:")
 ctgsExplLabel.place(x=10, y=10)
@@ -105,7 +107,18 @@ prcMinExplLabel.place(x=120, y=65)
 prcMaxExplLabel = ttk.Label(text="Макс.цена")
 prcMaxExplLabel.place(x=120, y=95)
 
-prcMinEntry = ttk.Entry(width=10)
+def is_digit(symbol, oprCode, index):
+    if int(oprCode) == 1:
+        if index == symbol:
+            return False
+        if symbol.isdigit():
+            return True
+        else: return False
+    else: return True
+
+digCheck = (root.register(is_digit), "%P", "%d", "%i")
+
+prcMinEntry = ttk.Entry(width=10, validate="key", validatecommand=digCheck)
 prcMinEntry.place(x=190, y=65)
 prcMaxEntry = ttk.Entry(width=10)
 prcMaxEntry.place(x=190, y=95)
