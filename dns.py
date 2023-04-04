@@ -107,11 +107,11 @@ prcMinExplLabel.place(x=120, y=65)
 prcMaxExplLabel = ttk.Label(text="Макс.цена")
 prcMaxExplLabel.place(x=120, y=95)
 
-def is_digit(symbol, oprCode, index):
+def is_digit(prcEntrySymb, oprCode, prcEntryInd):
     if int(oprCode) == 1:
-        if index == symbol:
+        if prcEntryInd == prcEntrySymb:
             return False
-        if symbol.isdigit():
+        if prcEntrySymb.isdigit():
             return True
         else: return False
     else: return True
@@ -120,7 +120,7 @@ digCheck = (root.register(is_digit), "%P", "%d", "%i")
 
 prcMinEntry = ttk.Entry(width=10, validate="key", validatecommand=digCheck)
 prcMinEntry.place(x=190, y=65)
-prcMaxEntry = ttk.Entry(width=10)
+prcMaxEntry = ttk.Entry(width=10, validate="key", validatecommand=digCheck)
 prcMaxEntry.place(x=190, y=95)
 
 
