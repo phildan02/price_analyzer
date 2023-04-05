@@ -85,21 +85,24 @@ categories = ["Мониторы", "Системные блоки", "Жёстки
 ctgsBox = ttk.Combobox(values=categories, state="readonly")
 ctgsBox.place(x=80, y=10)
 
+rsrcNames = ["DNS", "Ситилинк", "М.видео"]
+
 resourceFrame = ttk.LabelFrame(text="Ресурс", padding=[8, 4])
 resourceFrame.place(x=10, y=40)
 
 rsrcVars = []
 for t in range(3):
     rsrcVars.append(BooleanVar())
+    rsrcVars[t].set(1)
 
-dnsCheckbtn = ttk.Checkbutton(resourceFrame, text="DNS", variable=rsrcVars[0])
-dnsCheckbtn.pack(anchor=W)
 
-citilinkCheckbtn = ttk.Checkbutton(resourceFrame, text="Ситилинк", variable=rsrcVars[1])
-citilinkCheckbtn.pack(anchor=W)
+rsrcCheckbtns = []
 
-mvideoCheckbtn = ttk.Checkbutton(resourceFrame, text="М.видео", variable=rsrcVars[2])
-mvideoCheckbtn.pack(anchor=W)
+for k in range(3):
+    rsrcCheckbtns.append(ttk.Checkbutton(resourceFrame, text=rsrcNames[k], variable=rsrcVars[k]))
+    rsrcCheckbtns[k].pack(anchor=W)
+
+
 
 
 prcMinExplLabel = ttk.Label(text="Мин.цена")
@@ -124,46 +127,42 @@ prcMaxEntry = ttk.Entry(width=10, validate="key", validatecommand=digCheck)
 prcMaxEntry.place(x=190, y=95)
 
 
+mntrBrands = ["Acer", "AOC", "Samsung", "Asus", "Dell"]
+
+
 brandFrame = ttk.LabelFrame(text="Бренд", padding=[8, 4])
 brandFrame.place(x=270, y=40)
 
-mntrVars = []
+brandVars = []
 for i in range(5):
-    mntrVars.append(BooleanVar())
+    brandVars.append(BooleanVar())
 
-mntrAcerCheckbtn = ttk.Checkbutton(brandFrame, text="Acer", variable=mntrVars[0])
-mntrAcerCheckbtn.grid(row=0, column=0, sticky=W)
+brandCheckbtns = []
 
-mntrAocCheckbtn = ttk.Checkbutton(brandFrame, text="Aoc", variable=mntrVars[1])
-mntrAocCheckbtn.grid(row=1, column=0, sticky=W)
+for n in range(5):
+    brandCheckbtns.append(ttk.Checkbutton(brandFrame, text=mntrBrands[n], variable=brandVars[n]))
 
-mntrSamsungCheckbtn = ttk.Checkbutton(brandFrame, text="Samsung", variable=mntrVars[2])
-mntrSamsungCheckbtn.grid(row=2, column=0, sticky=W)
+for m in range(3):
+    brandCheckbtns[m].grid(row=m, column=0, sticky=W)
 
-mntrAsusCheckbtn = ttk.Checkbutton(brandFrame, text="Asus", variable=mntrVars[3])
-mntrAsusCheckbtn.grid(row=0, column=1, sticky=W)
-
-mntrDellCheckbtn = ttk.Checkbutton(brandFrame, text="Dell", variable=mntrVars[4])
-mntrDellCheckbtn.grid(row=1, column=1, sticky=W)
+brandCheckbtns[3].grid(row=0, column=1, sticky=W)
+brandCheckbtns[4].grid(row=1, column=1, sticky=W)
 
 
-mntrCheckbtns = [mntrAcerCheckbtn, mntrAocCheckbtn, mntrSamsungCheckbtn, mntrAsusCheckbtn, mntrDellCheckbtn]
-
-
-def mntrAllFunc():
+def brandAllFunc():
     j = 0
-    if mntrAllVar.get() == 1:
-        for j in range(len(mntrCheckbtns)):
-            mntrVars[j].set(1)
-            mntrCheckbtns[j]["state"] = DISABLED
+    if brandAllVar.get() == 1:
+        for j in range(len(brandCheckbtns)):
+            brandVars[j].set(1)
+            brandCheckbtns[j]["state"] = DISABLED
     else:
-        for j in range(len(mntrCheckbtns)):
-            mntrCheckbtns[j]["state"] = NORMAL
+        for j in range(len(brandCheckbtns)):
+            brandCheckbtns[j]["state"] = NORMAL
 
 
-mntrAllVar = BooleanVar()
-mntrAllCheckbtn = ttk.Checkbutton(brandFrame, text="Все", variable=mntrAllVar, command=mntrAllFunc)
-mntrAllCheckbtn.grid(row=2, column=1, sticky=W)
+brandAllVar = BooleanVar()
+brandAllCheckbtn = ttk.Checkbutton(brandFrame, text="Все", variable=brandAllVar, command=brandAllFunc)
+brandAllCheckbtn.grid(row=2, column=1, sticky=W)
 
 
 
