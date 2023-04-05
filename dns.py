@@ -66,10 +66,8 @@ def getPrices():
             else:
                 i += 1
 
-        prcsLabelVar.set(f'{str(prices[0])} - {str(prices[-1])}')
-
     except TimeoutException:
-        prcsLabelVar.set("Ошибка загрузки!")
+        print("Ошибка!")
 
     driver.quit()
 
@@ -81,10 +79,6 @@ root = Tk()
 root.title("Анализ цен")
 root.geometry("570x300")
 
-prcsLabelVar = StringVar()
-
-prcsLabel = ttk.Label(textvariable=prcsLabelVar, wraplength="110")
-prcsLabel.place(x=440, y=135)
 
 ctgsExplLabel = ttk.Label(text="Категория:")
 ctgsExplLabel.place(x=10, y=10)
@@ -238,17 +232,14 @@ notebook.add(tableMvideo, text="М.видео")
 
 
 def correctnessCheck():
-    correctness = True
     for u in range(len(rsrcVars)):
         if rsrcVars[u].get() == True:
             rsrcErr["text"] = ""
             break
         elif u == len(rsrcVars) - 1:
-            correctness = False
             rsrcErr["text"] = "Выберите хотя бы один ресурс"
     
     if prcMinEntry.get() == "" or prcMaxEntry.get() == "" or int(prcMaxEntry.get()) < int(prcMinEntry.get()):
-        correctness = False
         prcRangeErr["text"] = "Введите корректный ценовой диапазон"
     else:
         prcRangeErr["text"] = ""
@@ -258,20 +249,16 @@ def correctnessCheck():
             brandErr["text"] = ""
             break
         elif p == len(brandVars) - 1:
-            correctness = False
             brandErr["text"] = "Выберите хотя бы один бренд"
-    
-    if correctness:
+
+
+    if rsrcErr["text"] == "" and prcRangeErr["text"] == "" and brandErr["text"] == "":
         getPrices()
+
 
 
 getBtn = ttk.Button(text="Получить данные", padding=[5, 0], command=correctnessCheck)
 getBtn.place(x=440, y=47, height=83)
 
-def entered(event):
-    if correctness:
-        prcsLabelVar.set("Получение данных о товарах...")
-
-getBtn.bind("<ButtonPress>", entered)
 
 root.mainloop()
