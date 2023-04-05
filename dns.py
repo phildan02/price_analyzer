@@ -77,17 +77,36 @@ def getPrices():
 
 root = Tk()
 root.title("Анализ цен")
-root.geometry("570x300")
+root.geometry("595x300")
 
 
 ctgsExplLabel = ttk.Label(text="Категория:")
 ctgsExplLabel.place(x=10, y=10)
 
-categories = ["Мониторы", "Системные блоки", "Жёсткие диски"]
+categories = ["Мониторы", "Системные блоки", "USB-флешки"]
 ctgsBox = ttk.Combobox(values=categories, state="readonly")
 ctgsBox.current(0)
 ctgsBox.place(x=80, y=10)
 
+mntrBrands = ["Acer", "AOC", "Samsung", "Asus", "Dell"]
+pcBrands = ["Acer", "Asus", "Hiper", "IRU", "MSI"]
+usbFlashBrands = ["Kingston", "Mirex", "Silicon Power", "Smartbuy", "Sandisk"]
+
+
+def brandsDeter(event):
+    if ctgsBox.current() == 0:
+        for w in range(5):
+            brandNamesVars[w].set(mntrBrands[w])
+    elif ctgsBox.current() == 1:
+        for w in range(5):
+            brandNamesVars[w].set(pcBrands[w])
+    else:
+        for w in range(5):
+            brandNamesVars[w].set(usbFlashBrands[w])
+
+
+
+ctgsBox.bind("<<ComboboxSelected>>", brandsDeter)
 
 resourceFrame = ttk.LabelFrame(text="Ресурс", padding=[8, 4])
 resourceFrame.place(x=10, y=40)
@@ -144,17 +163,19 @@ prcRangeErr.place(x=120, y=130)
 brandFrame = ttk.LabelFrame(text="Бренд", padding=[8, 4])
 brandFrame.place(x=270, y=40)
 
-mntrBrands = ["Acer", "AOC", "Samsung", "Asus", "Dell"]
-
 brandVars = []
 for i in range(5):
     brandVars.append(BooleanVar())
 
-brandCheckbtns = []
+brandNamesVars = []
+for q in range(5):
+    brandNamesVars.append(StringVar())
+    brandNamesVars[q].set(mntrBrands[q])
 
+
+brandCheckbtns = []
 for n in range(5):
-    brandCheckbtns.append(ttk.Checkbutton(
-        brandFrame, text=mntrBrands[n], variable=brandVars[n]))
+    brandCheckbtns.append(ttk.Checkbutton(brandFrame, textvariable=brandNamesVars[n], variable=brandVars[n]))
 
 for m in range(3):
     brandCheckbtns[m].grid(row=m, column=0, sticky=W)
@@ -258,7 +279,7 @@ def correctnessCheck():
 
 
 getBtn = ttk.Button(text="Получить данные", padding=[5, 0], command=correctnessCheck)
-getBtn.place(x=440, y=47, height=83)
+getBtn.place(x=470, y=47, height=83)
 
 
 root.mainloop()
