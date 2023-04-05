@@ -66,29 +66,42 @@ def getPrices():
             else:
                 i += 1
 
-        prcsLabel["text"] = f'{str(prices[0])} - {str(prices[-1])}'
+        prcsLabelVar.set(f'{str(prices[0])} - {str(prices[-1])}')
 
     except TimeoutException:
-        prcsLabel["text"] = "Ошибка загрузки!"
+        prcsLabelVar.set("Ошибка загрузки!")
 
     driver.quit()
 
 
+
+
+
 root = Tk()
 root.title("Анализ цен")
-root.geometry("600x300")
+root.geometry("570x300")
+
+prcsLabelVar = StringVar()
+
+prcsLabel = ttk.Label(textvariable=prcsLabelVar, wraplength="110")
+prcsLabel.place(x=440, y=135)
 
 ctgsExplLabel = ttk.Label(text="Категория:")
 ctgsExplLabel.place(x=10, y=10)
 
 categories = ["Мониторы", "Системные блоки", "Жёсткие диски"]
 ctgsBox = ttk.Combobox(values=categories, state="readonly")
+ctgsBox.current(0)
 ctgsBox.place(x=80, y=10)
 
-rsrcNames = ["DNS", "Ситилинк", "М.видео"]
 
 resourceFrame = ttk.LabelFrame(text="Ресурс", padding=[8, 4])
 resourceFrame.place(x=10, y=40)
+
+rsrcErr = ttk.Label(wraplength=95, foreground="red")
+rsrcErr.place(x=10, y=130)
+
+rsrcNames = ["DNS", "Ситилинк", "М.видео"]
 
 rsrcVars = []
 for t in range(3):
@@ -99,10 +112,9 @@ for t in range(3):
 rsrcCheckbtns = []
 
 for k in range(3):
-    rsrcCheckbtns.append(ttk.Checkbutton(resourceFrame, text=rsrcNames[k], variable=rsrcVars[k]))
+    rsrcCheckbtns.append(ttk.Checkbutton(
+        resourceFrame, text=rsrcNames[k], variable=rsrcVars[k]))
     rsrcCheckbtns[k].pack(anchor=W)
-
-
 
 
 prcMinExplLabel = ttk.Label(text="Мин.цена")
@@ -110,28 +122,35 @@ prcMinExplLabel.place(x=120, y=65)
 prcMaxExplLabel = ttk.Label(text="Макс.цена")
 prcMaxExplLabel.place(x=120, y=95)
 
+
 def is_digit(prcEntrySymb, oprCode, prcEntryInd):
     if int(oprCode) == 1:
         if prcEntryInd == prcEntrySymb:
             return False
         if prcEntrySymb.isdigit():
             return True
-        else: return False
-    else: return True
+        else:
+            return False
+    else:
+        return True
+
 
 digCheck = (root.register(is_digit), "%P", "%d", "%i")
+
 
 prcMinEntry = ttk.Entry(width=10, validate="key", validatecommand=digCheck)
 prcMinEntry.place(x=190, y=65)
 prcMaxEntry = ttk.Entry(width=10, validate="key", validatecommand=digCheck)
 prcMaxEntry.place(x=190, y=95)
 
-
-mntrBrands = ["Acer", "AOC", "Samsung", "Asus", "Dell"]
+prcRangeErr = ttk.Label(wraplength=135, foreground="red")
+prcRangeErr.place(x=120, y=130)
 
 
 brandFrame = ttk.LabelFrame(text="Бренд", padding=[8, 4])
 brandFrame.place(x=270, y=40)
+
+mntrBrands = ["Acer", "AOC", "Samsung", "Asus", "Dell"]
 
 brandVars = []
 for i in range(5):
@@ -140,7 +159,8 @@ for i in range(5):
 brandCheckbtns = []
 
 for n in range(5):
-    brandCheckbtns.append(ttk.Checkbutton(brandFrame, text=mntrBrands[n], variable=brandVars[n]))
+    brandCheckbtns.append(ttk.Checkbutton(
+        brandFrame, text=mntrBrands[n], variable=brandVars[n]))
 
 for m in range(3):
     brandCheckbtns[m].grid(row=m, column=0, sticky=W)
@@ -161,13 +181,17 @@ def brandAllFunc():
 
 
 brandAllVar = BooleanVar()
-brandAllCheckbtn = ttk.Checkbutton(brandFrame, text="Все", variable=brandAllVar, command=brandAllFunc)
+brandAllCheckbtn = ttk.Checkbutton(
+    brandFrame, text="Все", variable=brandAllVar, command=brandAllFunc)
 brandAllCheckbtn.grid(row=2, column=1, sticky=W)
+
+brandErr = ttk.Label(wraplength=135, foreground="red")
+brandErr.place(x=270, y=130)
 
 
 
 notebook = ttk.Notebook()
-notebook.pack(expand=True, fill=BOTH, padx=10, pady=[150, 10])
+notebook.pack(expand=True, fill=BOTH, padx=10, pady=[170, 10])
 notebook.rowconfigure(index=0, weight=1)
 notebook.columnconfigure(index=0, weight=1)
 notebook.columnconfigure(index=1, weight=1)
@@ -186,13 +210,13 @@ tableDns.configure(yscroll=dnsScrollbar.set)
 dnsScrollbar.grid(row=0, column=1, sticky='nese', pady=[20, 0])
 
 
-
 tableCitilink = ttk.Treeview(notebook, columns=columns, show="headings")
 tableCitilink.grid(row=0, column=0)
 tableCitilink.heading("name", text="Наименование товара", anchor=W)
 tableCitilink.heading("price", text="Цена", anchor=W)
 
-citilinkScrollbar = ttk.Scrollbar(notebook, orient=VERTICAL, command=tableCitilink.yview)
+citilinkScrollbar = ttk.Scrollbar(
+    notebook, orient=VERTICAL, command=tableCitilink.yview)
 tableCitilink.configure(yscroll=citilinkScrollbar.set)
 citilinkScrollbar.grid(row=0, column=1, sticky='nese', pady=[20, 0])
 
@@ -202,7 +226,8 @@ tableMvideo.grid(row=0, column=0)
 tableMvideo.heading("name", text="Наименование товара", anchor=W)
 tableMvideo.heading("price", text="Цена", anchor=W)
 
-mvideoScrollbar = ttk.Scrollbar(notebook, orient=VERTICAL, command=tableMvideo.yview)
+mvideoScrollbar = ttk.Scrollbar(
+    notebook, orient=VERTICAL, command=tableMvideo.yview)
 tableMvideo.configure(yscroll=mvideoScrollbar.set)
 mvideoScrollbar.grid(row=0, column=1, sticky='nese', pady=[20, 0])
 
@@ -212,8 +237,41 @@ notebook.add(tableCitilink, text="Ситилинк")
 notebook.add(tableMvideo, text="М.видео")
 
 
-getBtn = ttk.Button(text="Получить данные", padding=[5, 0], command=getPrices)
+def correctnessCheck():
+    correctness = True
+    for u in range(len(rsrcVars)):
+        if rsrcVars[u].get() == True:
+            rsrcErr["text"] = ""
+            break
+        elif u == len(rsrcVars) - 1:
+            correctness = False
+            rsrcErr["text"] = "Выберите хотя бы один ресурс"
+    
+    if prcMinEntry.get() == "" or prcMaxEntry.get() == "" or int(prcMaxEntry.get()) < int(prcMinEntry.get()):
+        correctness = False
+        prcRangeErr["text"] = "Введите корректный ценовой диапазон"
+    else:
+        prcRangeErr["text"] = ""
+    
+    for p in range(len(brandVars)):
+        if brandVars[p].get() == True:
+            brandErr["text"] = ""
+            break
+        elif p == len(brandVars) - 1:
+            correctness = False
+            brandErr["text"] = "Выберите хотя бы один бренд"
+    
+    if correctness:
+        getPrices()
+
+
+getBtn = ttk.Button(text="Получить данные", padding=[5, 0], command=correctnessCheck)
 getBtn.place(x=440, y=47, height=83)
 
+def entered(event):
+    if correctness:
+        prcsLabelVar.set("Получение данных о товарах...")
+
+getBtn.bind("<ButtonPress>", entered)
 
 root.mainloop()
