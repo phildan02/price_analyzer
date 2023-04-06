@@ -28,10 +28,10 @@ stealth(driver,
         )
 
 
-def getPrices():
-    driver.get(
-        "https://www.dns-shop.ru/catalog/17a8a01d16404e77/smartfony/?review=1")
+def dnsGetPrices():
     try:
+        driver.get("https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/")
+        
         targetElem = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.CLASS_NAME, 'product-buy__price')))
 
@@ -47,15 +47,17 @@ def getPrices():
         if totalNumElems < numElems:
             numElems = totalNumElems
 
-        elems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+        priceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+        nameElems = driver.find_elements(By.CLASS_NAME, 'catalog-product__name')
 
-        while len(elems) != numElems:
+        while len(priceElems) != numElems or len(nameElems) != numElems:
             time.sleep(0.5)
-            elems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+            priceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+            nameElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
             driver.execute_script("window.scrollBy(0, 800)")
 
         prices = []
-        for x in elems:
+        for x in priceElems:
             prices.append(x.text[:-2])
 
         i = 0
@@ -66,10 +68,23 @@ def getPrices():
             else:
                 i += 1
 
+
+        names = []
+        for y in nameElems:
+            names.append(y.text)
+
+
+        for g in range(len(prices)):
+            tableDns.insert("", END, values=(names[g], prices[g]))
+
+
     except TimeoutException:
         print("Ошибка!")
 
     driver.quit()
+
+
+
 
 
 
@@ -207,49 +222,67 @@ brandErr.place(x=270, y=130)
 
 notebook = ttk.Notebook()
 notebook.pack(expand=True, fill=BOTH, padx=10, pady=[170, 10])
-notebook.rowconfigure(index=0, weight=1)
-notebook.columnconfigure(index=0, weight=1)
-notebook.columnconfigure(index=1, weight=1)
-
-
 columns = ("name", "price")
-tableDns = ttk.Treeview(notebook, columns=columns, show="headings")
-tableDns.grid(row=0, column=0)
+
+
+tableDnsFrame = ttk.Frame(notebook)
+tableDnsFrame.pack()
+
+tableDnsFrame.columnconfigure(index=0, weight=1)
+tableDnsFrame.columnconfigure(index=1, weight=0)
+tableDnsFrame.rowconfigure(index=0, weight=1)
+
+tableDns = ttk.Treeview(tableDnsFrame, columns=columns, show="headings")
 tableDns.heading("name", text="Наименование товара", anchor=W)
 tableDns.heading("price", text="Цена", anchor=W)
-monitor = ("Монитор AOC 24 LCD IPS", "13000")
-tableDns.insert("", END, values=monitor)
+tableDns.column("#1", width=400)
+tableDns.grid(row=0, column=0, sticky='nsew')
 
-dnsScrollbar = ttk.Scrollbar(notebook, orient=VERTICAL, command=tableDns.yview)
+dnsScrollbar = ttk.Scrollbar(tableDnsFrame, orient=VERTICAL, command=tableDns.yview)
 tableDns.configure(yscroll=dnsScrollbar.set)
-dnsScrollbar.grid(row=0, column=1, sticky='nese', pady=[20, 0])
+dnsScrollbar.grid(row=0, column=1, sticky='ns')
 
 
-tableCitilink = ttk.Treeview(notebook, columns=columns, show="headings")
-tableCitilink.grid(row=0, column=0)
+tableCitilinkFrame = ttk.Frame(notebook)
+tableCitilinkFrame.pack()
+
+tableCitilinkFrame.columnconfigure(index=0, weight=1)
+tableCitilinkFrame.columnconfigure(index=1, weight=0)
+tableCitilinkFrame.rowconfigure(index=0, weight=1)
+
+tableCitilink = ttk.Treeview(tableCitilinkFrame, columns=columns, show="headings")
 tableCitilink.heading("name", text="Наименование товара", anchor=W)
 tableCitilink.heading("price", text="Цена", anchor=W)
+tableCitilink.column("#1", width=400)
+tableCitilink.grid(row=0, column=0, sticky='nsew')
 
-citilinkScrollbar = ttk.Scrollbar(
-    notebook, orient=VERTICAL, command=tableCitilink.yview)
+citilinkScrollbar = ttk.Scrollbar(tableCitilinkFrame, orient=VERTICAL, command=tableCitilink.yview)
 tableCitilink.configure(yscroll=citilinkScrollbar.set)
-citilinkScrollbar.grid(row=0, column=1, sticky='nese', pady=[20, 0])
+citilinkScrollbar.grid(row=0, column=1, sticky='ns')
 
 
-tableMvideo = ttk.Treeview(notebook, columns=columns, show="headings")
-tableMvideo.grid(row=0, column=0)
+tableMvideoFrame = ttk.Frame(notebook)
+tableMvideoFrame.pack()
+
+tableMvideoFrame.columnconfigure(index=0, weight=1)
+tableMvideoFrame.columnconfigure(index=1, weight=0)
+tableMvideoFrame.rowconfigure(index=0, weight=1)
+
+tableMvideo = ttk.Treeview(tableMvideoFrame, columns=columns, show="headings")
 tableMvideo.heading("name", text="Наименование товара", anchor=W)
 tableMvideo.heading("price", text="Цена", anchor=W)
+tableMvideo.column("#1", width=400)
+tableMvideo.grid(row=0, column=0, sticky='nsew')
 
-mvideoScrollbar = ttk.Scrollbar(
-    notebook, orient=VERTICAL, command=tableMvideo.yview)
+mvideoScrollbar = ttk.Scrollbar(tableMvideoFrame, orient=VERTICAL, command=tableMvideo.yview)
 tableMvideo.configure(yscroll=mvideoScrollbar.set)
-mvideoScrollbar.grid(row=0, column=1, sticky='nese', pady=[20, 0])
+mvideoScrollbar.grid(row=0, column=1, sticky='ns')
 
 
-notebook.add(tableDns, text="DNS")
-notebook.add(tableCitilink, text="Ситилинк")
-notebook.add(tableMvideo, text="М.видео")
+notebook.add(tableDnsFrame, text="DNS")
+notebook.add(tableCitilinkFrame, text="Ситилинк")
+notebook.add(tableMvideoFrame, text="М.видео")
+
 
 
 def correctnessCheck():
@@ -274,7 +307,7 @@ def correctnessCheck():
 
 
     if rsrcErr["text"] == "" and prcRangeErr["text"] == "" and brandErr["text"] == "":
-        getPrices()
+        dnsGetPrices()
 
 
 

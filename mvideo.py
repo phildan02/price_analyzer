@@ -44,7 +44,6 @@ try:
         while len(elems) == curNumElems:
             time.sleep(0.5)
             elems = driver.find_elements(By.CLASS_NAME, 'price__main-value')
-            # print(len(elems))
         
         curNumElems = len(elems)
         driver.execute_script("window.scrollBy(0, 800)")
