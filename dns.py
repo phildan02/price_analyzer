@@ -14,7 +14,7 @@ options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
-options.add_argument("--headless")
+# options.add_argument("--headless")
 
 driver = webdriver.Chrome(options=options)
 
@@ -27,16 +27,18 @@ stealth(driver,
         fix_hairline=True
         )
 
+url = ""
 
 def dnsGetPrices():
+    global url
     try:
-        driver.get("https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/")
-        
-        targetElem = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, 'product-buy__price')))
+        priceElems = []
+        nameElems = []
 
-        strTotalNumElems = driver.find_element(
-            By.CLASS_NAME, 'products-count').text
+        driver.get(url)
+        prodCountTargetElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'products-count')))
+        
+        strTotalNumElems = driver.find_element(By.CLASS_NAME, 'products-count').text
         if strTotalNumElems[-1] == "в":
             totalNumElems = int(strTotalNumElems[:-8])
         else:
@@ -47,19 +49,46 @@ def dnsGetPrices():
         if totalNumElems < numElems:
             numElems = totalNumElems
 
-        priceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
-        nameElems = driver.find_elements(By.CLASS_NAME, 'catalog-product__name')
+        if totalNumElems % 18 == 0:
+            lastPageIndex = totalNumElems / 18
+        else: 
+            lastPageIndex = totalNumElems // 18 + 1
+            lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 18
+        
+        print(lastPageIndex)
+        print(lastPageNumElems)
 
-        while len(priceElems) != numElems or len(nameElems) != numElems:
-            time.sleep(0.5)
-            priceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
-            nameElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
-            driver.execute_script("window.scrollBy(0, 800)")
+        pageIndex = 1
+        while len(priceElems) != totalNumElems or len(nameElems) != totalNumElems:
+            if pageIndex != 1:
+                driver.get(url)
 
+            if pageIndex == lastPageIndex:
+                numElems = lastPageNumElems
+
+            priceTargetElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-buy__price')))
+            nameTargetElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'catalog-product__name')))
+            
+            pagePriceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+            pageNameElems = driver.find_elements(By.CLASS_NAME, 'catalog-product__name')
+
+            while len(pagePriceElems) != numElems or len(pageNameElems) != numElems:
+                time.sleep(0.5)
+                pagePriceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+                pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+                driver.execute_script("window.scrollBy(0, 800)")
+            
+            priceElems += pagePriceElems
+            nameElems += pageNameElems
+
+            pageIndex += 1
+            url = url[:-1] + str(pageIndex)
+
+
+        print(type(priceElems))
         prices = []
         for x in priceElems:
             prices.append(x.text[:-2])
-
         i = 0
         while i < len(prices):
             index = prices[i].find("\n")
@@ -67,7 +96,6 @@ def dnsGetPrices():
                 prices[i] = prices[i][:(index - 2)]
             else:
                 i += 1
-
 
         names = []
         for y in nameElems:
@@ -108,18 +136,29 @@ pcBrands = ["Acer", "Asus", "Hiper", "IRU", "MSI"]
 usbFlashBrands = ["Kingston", "Mirex", "Silicon Power", "Smartbuy", "Sandisk"]
 
 
+ctgsBoxLastValue = 0
+def remembLastValue(event):
+    global ctgsBoxLastValue
+    ctgsBoxLastValue = ctgsBox.current()
+
+ctgsBox.bind("<ButtonPress>", remembLastValue)
+
+
 def brandsDeter(event):
-    if ctgsBox.current() == 0:
-        for w in range(5):
-            brandNamesVars[w].set(mntrBrands[w])
-    elif ctgsBox.current() == 1:
-        for w in range(5):
-            brandNamesVars[w].set(pcBrands[w])
-    else:
-        for w in range(5):
-            brandNamesVars[w].set(usbFlashBrands[w])
-
-
+    if ctgsBox.current() != ctgsBoxLastValue:
+        for r in range(5):
+            brandVars[r].set(0)
+            brandCheckbtns[r]["state"] = NORMAL
+            brandAllVar.set(0)
+        if ctgsBox.current() == 0:
+            for w in range(5):
+                brandNamesVars[w].set(mntrBrands[w])
+        elif ctgsBox.current() == 1:
+            for w in range(5):
+                brandNamesVars[w].set(pcBrands[w])
+        else:
+            for w in range(5):
+                brandNamesVars[w].set(usbFlashBrands[w])
 
 ctgsBox.bind("<<ComboboxSelected>>", brandsDeter)
 
@@ -211,8 +250,7 @@ def brandAllFunc():
 
 
 brandAllVar = BooleanVar()
-brandAllCheckbtn = ttk.Checkbutton(
-    brandFrame, text="Все", variable=brandAllVar, command=brandAllFunc)
+brandAllCheckbtn = ttk.Checkbutton(brandFrame, text="Все", variable=brandAllVar, command=brandAllFunc)
 brandAllCheckbtn.grid(row=2, column=1, sticky=W)
 
 brandErr = ttk.Label(wraplength=135, foreground="red")
@@ -307,6 +345,15 @@ def correctnessCheck():
 
 
     if rsrcErr["text"] == "" and prcRangeErr["text"] == "" and brandErr["text"] == "":
+        global url
+        if ctgsBox.current() == 0:
+            url = "https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/?price=8501-11000&p=1"
+        elif ctgsBox.current() == 1:
+            url = "https://www.dns-shop.ru/catalog/17a8932c16404e77/personalnye-kompyutery/?p=1"
+        else:
+            url = "https://www.dns-shop.ru/catalog/ce3bebe8448b4e77/usb-flash/?p=1"
+        
+        
         dnsGetPrices()
 
 
