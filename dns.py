@@ -32,8 +32,8 @@ url = ""
 def dnsGetPrices():
     global url
     try:
-        priceElems = []
-        nameElems = []
+        prices = []
+        names = []
 
         driver.get(url)
         prodCountTargetElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'products-count')))
@@ -41,30 +41,35 @@ def dnsGetPrices():
         strTotalNumElems = driver.find_element(By.CLASS_NAME, 'products-count').text
         if strTotalNumElems[-1] == "в":
             totalNumElems = int(strTotalNumElems[:-8])
-        else:
+        elif strTotalNumElems[-1] == "а":
             totalNumElems = int(strTotalNumElems[:-7])
+        else:
+            totalNumElems = int(strTotalNumElems[:-6])
 
-        numElems = 18
 
-        if totalNumElems < numElems:
-            numElems = totalNumElems
+        pageNumElems = 18
+        if totalNumElems < pageNumElems:
+            lastPageIndex = 1
+            lastPageNumElems = totalNumElems
+        else:
+            if totalNumElems % 18 == 0:
+                lastPageIndex = totalNumElems / 18
+                lastPageNumElems = 18
+            else:
+                lastPageIndex = totalNumElems // 18 + 1
+                lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 18
 
-        if totalNumElems % 18 == 0:
-            lastPageIndex = totalNumElems / 18
-        else: 
-            lastPageIndex = totalNumElems // 18 + 1
-            lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 18
+
+        urlPageInd = url.find("p=")
+        urlWithoutPageInd = url[:urlPageInd + 2]
         
-        print(lastPageIndex)
-        print(lastPageNumElems)
-
         pageIndex = 1
-        while len(priceElems) != totalNumElems or len(nameElems) != totalNumElems:
+        while pageIndex <= lastPageIndex:
             if pageIndex != 1:
                 driver.get(url)
 
             if pageIndex == lastPageIndex:
-                numElems = lastPageNumElems
+                pageNumElems = lastPageNumElems
 
             priceTargetElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-buy__price')))
             nameTargetElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'catalog-product__name')))
@@ -72,23 +77,23 @@ def dnsGetPrices():
             pagePriceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
             pageNameElems = driver.find_elements(By.CLASS_NAME, 'catalog-product__name')
 
-            while len(pagePriceElems) != numElems or len(pageNameElems) != numElems:
+            while len(pagePriceElems) != pageNumElems or len(pageNameElems) != pageNumElems:
                 time.sleep(0.5)
                 pagePriceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
                 pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
                 driver.execute_script("window.scrollBy(0, 800)")
-            
-            priceElems += pagePriceElems
-            nameElems += pageNameElems
+
+            for x in pagePriceElems:
+                prices.append(x.text[:-2])
+
+            for y in pageNameElems:
+                names.append(y.text)
 
             pageIndex += 1
-            url = url[:-1] + str(pageIndex)
+
+            url = urlWithoutPageInd + str(pageIndex)
 
 
-        print(type(priceElems))
-        prices = []
-        for x in priceElems:
-            prices.append(x.text[:-2])
         i = 0
         while i < len(prices):
             index = prices[i].find("\n")
@@ -97,13 +102,15 @@ def dnsGetPrices():
             else:
                 i += 1
 
-        names = []
-        for y in nameElems:
-            names.append(y.text)
-
 
         for g in range(len(prices)):
             tableDns.insert("", END, values=(names[g], prices[g]))
+
+        l = 0
+        for k in tableDns.get_children(""):
+            l += 1
+
+        print(l)
 
 
     except TimeoutException:
@@ -347,12 +354,11 @@ def correctnessCheck():
     if rsrcErr["text"] == "" and prcRangeErr["text"] == "" and brandErr["text"] == "":
         global url
         if ctgsBox.current() == 0:
-            url = "https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/?price=8501-11000&p=1"
+            url = "https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/?p=1"
         elif ctgsBox.current() == 1:
             url = "https://www.dns-shop.ru/catalog/17a8932c16404e77/personalnye-kompyutery/?p=1"
         else:
             url = "https://www.dns-shop.ru/catalog/ce3bebe8448b4e77/usb-flash/?p=1"
-        
         
         dnsGetPrices()
 
