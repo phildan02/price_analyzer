@@ -29,9 +29,9 @@ stealth(driver,
 
 url = ""
 
-def dnsGetPrices():
-    global url
+def dnsGetData():
     try:
+        global url
         prices = []
         names = []
 
@@ -46,6 +46,10 @@ def dnsGetPrices():
         else:
             totalNumElems = int(strTotalNumElems[:-6])
 
+        if totalNumElems == 0:
+            tableDns.insert("", END, values=("Товары не найдены", ""))
+            driver.quit()
+            return
 
         pageNumElems = 18
         if totalNumElems < pageNumElems:
@@ -109,7 +113,6 @@ def dnsGetPrices():
         l = 0
         for k in tableDns.get_children(""):
             l += 1
-
         print(l)
 
 
@@ -138,9 +141,9 @@ ctgsBox = ttk.Combobox(values=categories, state="readonly")
 ctgsBox.current(0)
 ctgsBox.place(x=80, y=10)
 
-mntrBrands = ["Acer", "AOC", "Samsung", "Asus", "Dell"]
+mntrBrands = ["Acer", "AOC", "Asus", "Dell", "Samsung"]
 pcBrands = ["Acer", "Asus", "Hiper", "IRU", "MSI"]
-usbFlashBrands = ["Kingston", "Mirex", "Silicon Power", "Smartbuy", "Sandisk"]
+usbFlashBrands = ["Kingston", "Mirex", "Sandisk", "Silicon Power", "Smartbuy"]
 
 
 ctgsBoxLastValue = 0
@@ -353,14 +356,27 @@ def correctnessCheck():
 
     if rsrcErr["text"] == "" and prcRangeErr["text"] == "" and brandErr["text"] == "":
         global url
+
+        urlPriceRange = f'price={prcMinEntry.get()}-{prcMaxEntry.get()}'
+        print(urlPriceRange)
+
+        urlBrands = "brand="
+        for e in range(5):
+            if brandVars[e].get() == 1:
+                urlBrands += brandNamesVars[e].get().lower().replace(' ', '') + "-"
+
+        urlBrands = urlBrands[:-1]
+        print(urlBrands)
+
         if ctgsBox.current() == 0:
-            url = "https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/?p=1"
+            url = f'https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/?{urlPriceRange}&{urlBrands}&p=1'
         elif ctgsBox.current() == 1:
-            url = "https://www.dns-shop.ru/catalog/17a8932c16404e77/personalnye-kompyutery/?p=1"
+            url = f'https://www.dns-shop.ru/catalog/17a8932c16404e77/personalnye-kompyutery/?{urlPriceRange}&{urlBrands}&p=1'
         else:
-            url = "https://www.dns-shop.ru/catalog/ce3bebe8448b4e77/usb-flash/?p=1"
+            url = f'https://www.dns-shop.ru/catalog/ce3bebe8448b4e77/usb-flash/?{urlPriceRange}&{urlBrands}&p=1'
         
-        dnsGetPrices()
+
+        dnsGetData()
 
 
 
