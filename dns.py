@@ -14,7 +14,7 @@ options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
-# options.add_argument("--headless")
+options.add_argument("--headless")
 
 driver = webdriver.Chrome(options=options)
 
@@ -129,8 +129,8 @@ def dnsGetData():
 
 
 root = Tk()
-root.title("Анализ цен")
-root.geometry("595x300")
+root.title("Цены на товары")
+root.geometry("595x400")
 
 
 ctgsExplLabel = ttk.Label(text="Категория:")
@@ -358,15 +358,12 @@ def correctnessCheck():
         global url
 
         urlPriceRange = f'price={prcMinEntry.get()}-{prcMaxEntry.get()}'
-        print(urlPriceRange)
 
         urlBrands = "brand="
         for e in range(5):
             if brandVars[e].get() == 1:
                 urlBrands += brandNamesVars[e].get().lower().replace(' ', '') + "-"
-
         urlBrands = urlBrands[:-1]
-        print(urlBrands)
 
         if ctgsBox.current() == 0:
             url = f'https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/?{urlPriceRange}&{urlBrands}&p=1'
