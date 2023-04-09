@@ -14,7 +14,7 @@ options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
-options.add_argument("--headless")
+# options.add_argument("--headless")
 
 driver = webdriver.Chrome(options=options)
 
@@ -200,11 +200,9 @@ prcMaxExplLabel = ttk.Label(text="Макс.цена")
 prcMaxExplLabel.place(x=120, y=95)
 
 
-def is_digit(prcEntrySymb, oprCode, prcEntryInd):
+def is_digit(prcEntrySymb, oprCode, textBeforeChange):
     if int(oprCode) == 1:
-        if prcEntryInd == prcEntrySymb:
-            return False
-        if prcEntrySymb.isdigit():
+        if prcEntrySymb.isdigit() and textBeforeChange != "0":
             return True
         else:
             return False
@@ -212,7 +210,7 @@ def is_digit(prcEntrySymb, oprCode, prcEntryInd):
         return True
 
 
-digCheck = (root.register(is_digit), "%P", "%d", "%i")
+digCheck = (root.register(is_digit), "%P", "%d", "%s")
 
 
 prcMinEntry = ttk.Entry(width=10, validate="key", validatecommand=digCheck)

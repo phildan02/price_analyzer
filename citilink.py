@@ -42,7 +42,7 @@ try:
     if totalNumElems == 0:
         driver.quit()
 
-    print(totalNumElems) 
+    print(totalNumElems)
 
     # targetElem = WebDriverWait(driver, 10).until(
     #     EC.presence_of_element_located((By.CLASS_NAME, 'e1j9birj0')))
