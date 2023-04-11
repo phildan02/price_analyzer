@@ -8,13 +8,14 @@ import time
 from tkinter import *
 from tkinter import ttk
 import re
+from threading import Thread
 
 
 options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
-# options.add_argument("--headless")
+options.add_argument("--headless")
 
 driver = webdriver.Chrome(options=options)
 
@@ -94,7 +95,6 @@ def dnsGetData():
                 names.append(y.text)
 
             pageIndex += 1
-
             url = urlWithoutPageInd + str(pageIndex)
 
 
@@ -120,6 +120,105 @@ def dnsGetData():
         print("Ошибка!")
 
     driver.quit()
+
+
+
+
+
+def citilinkGetData():
+    try:
+        global url
+        prices = []
+        names = []
+
+        driver.get(url)
+        prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1di3r8d0')))
+        
+        strTotalNumElems = driver.find_element(By.CLASS_NAME, 'e1di3r8d0').text
+        if strTotalNumElems[-1] == "в":
+            totalNumElems = int(strTotalNumElems[:-8])
+        elif strTotalNumElems[-1] == "а":
+            totalNumElems = int(strTotalNumElems[:-7])
+        else:
+            totalNumElems = int(strTotalNumElems[:-6])
+
+        if totalNumElems == 0:
+            tableCitilink.insert("", END, values=("Товары не найдены", ""))
+            driver.quit()
+            return
+
+
+        pageNumElems = 48
+        if totalNumElems < pageNumElems:
+            lastPageIndex = 1
+            lastPageNumElems = totalNumElems
+        else:
+            if totalNumElems % 48 == 0:
+                lastPageIndex = totalNumElems / 48
+                lastPageNumElems = 48
+            else:
+                lastPageIndex = totalNumElems // 48 + 1
+                lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 48
+
+
+        urlPageIndStartPos = url.find("p=")
+        urlPageIndEndPos = url.find("&", urlPageIndStartPos)
+
+        urlWithoutPageInd = [url[:urlPageIndStartPos + 2], url[urlPageIndEndPos:]]
+
+        pageIndex = 1
+        while pageIndex <= lastPageIndex:
+            if pageIndex != 1:
+                driver.get(url)
+
+            if pageIndex == lastPageIndex:
+                pageNumElems = lastPageNumElems
+
+            priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1j9birj0')))
+            nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1259i3g0')))
+                
+            pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
+            pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
+
+            while len(pagePriceElems) < pageNumElems or len(pageNameElems) < pageNumElems:
+                time.sleep(0.5)
+                pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
+                pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
+                driver.execute_script("window.scrollBy(0, 600)")
+
+            while len(pagePriceElems) > pageNumElems:
+                pagePriceElems.pop()
+
+            while len(pageNameElems) > pageNumElems:
+                pageNameElems.pop()
+
+            for x in pagePriceElems:
+                prices.append(x.text)
+
+            for y in pageNameElems:
+                names.append(y.text)
+
+            pageIndex += 1
+            url = str(pageIndex).join(urlWithoutPageInd)
+
+        for g in range(len(prices)):
+            tableCitilink.insert("", END, values=(names[g], prices[g]))
+
+        l = 0
+        for k in tableCitilink.get_children(""):
+            l += 1
+        print(l)
+
+
+    except TimeoutException:
+        print("Ошибка!")
+
+    driver.quit()
+
+
+
+
+
 
 
 
@@ -331,7 +430,10 @@ notebook.add(tableMvideoFrame, text="М.видео")
 
 
 
+
 def correctnessCheck():
+    global thread
+
     for u in range(len(rsrcVars)):
         if rsrcVars[u].get() == True:
             rsrcErr["text"] = ""
@@ -365,14 +467,20 @@ def correctnessCheck():
 
         if ctgsBox.current() == 0:
             url = f'https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/?{urlPriceRange}&{urlBrands}&p=1'
+            # url = "https://www.citilink.ru/catalog/monitory/?p=1&pf=available.all%2Cdiscount.any%2Crating.any&f=available.all%2Cdiscount.any%2Crating.any&pprice_min=6990&price_min=6990&price_max=18795"
         elif ctgsBox.current() == 1:
             url = f'https://www.dns-shop.ru/catalog/17a8932c16404e77/personalnye-kompyutery/?{urlPriceRange}&{urlBrands}&p=1'
         else:
             url = f'https://www.dns-shop.ru/catalog/ce3bebe8448b4e77/usb-flash/?{urlPriceRange}&{urlBrands}&p=1'
+    
+        thread.start()
+
+        thread.join()
+
         
 
-        dnsGetData()
-
+thread = Thread(target=dnsGetData)
+thread.daemon = True
 
 
 getBtn = ttk.Button(text="Получить данные", padding=[5, 0], command=correctnessCheck)
