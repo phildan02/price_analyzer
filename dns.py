@@ -432,8 +432,6 @@ notebook.add(tableMvideoFrame, text="М.видео")
 
 
 def correctnessCheck():
-    global thread
-
     for u in range(len(rsrcVars)):
         if rsrcVars[u].get() == True:
             rsrcErr["text"] = ""
@@ -472,19 +470,32 @@ def correctnessCheck():
             url = f'https://www.dns-shop.ru/catalog/17a8932c16404e77/personalnye-kompyutery/?{urlPriceRange}&{urlBrands}&p=1'
         else:
             url = f'https://www.dns-shop.ru/catalog/ce3bebe8448b4e77/usb-flash/?{urlPriceRange}&{urlBrands}&p=1'
-    
-        thread.start()
-
-        thread.join()
-
-        
-
-thread = Thread(target=dnsGetData)
-thread.daemon = True
 
 
-getBtn = ttk.Button(text="Получить данные", padding=[5, 0], command=correctnessCheck)
+        global dnsThread
+        dnsThread = Thread(target=dnsGetData)
+        dnsThread.daemon = True
+
+        btnStateThr = Thread(target=btnStateReset)
+        btnStateThr.daemon = True
+
+        dnsThread.start()
+        btnStateThr.start()
+        getBtn["state"] = DISABLED
+        getBtn["text"] = "Получение информации о товарах..."
+
+
+def btnStateReset():
+    dnsThread.join()
+    getBtn["state"] = NORMAL
+    processInfo["text"] = "Информация получена"
+
+
+getBtn = ttk.Button(text="Получить данные", padding=[5, 0], width=25, command=correctnessCheck)
 getBtn.place(x=470, y=47, height=83)
+
+processInfo = ttk.Label(wraplength=110)
+processInfo.place(x=470, y=135)
 
 
 root.mainloop()
