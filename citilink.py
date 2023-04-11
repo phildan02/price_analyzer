@@ -24,12 +24,15 @@ stealth(driver,
         fix_hairline=True
         )
 
-
+url = "https://www.citilink.ru/catalog/monitory/?p=1&sorting=price_asc&pf=discount.any%2Crating.any&f=discount.any%2Crating.any%2Cavailable.all"
 
 try:
-    driver.get("https://www.citilink.ru/catalog/monitory/")
+    # global url
+    prices = []
+    names = []
 
-    prodCountTargetElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1di3r8d0')))
+    driver.get(url)
+    prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1di3r8d0')))
     
     strTotalNumElems = driver.find_element(By.CLASS_NAME, 'e1di3r8d0').text
     if strTotalNumElems[-1] == "в":
@@ -40,47 +43,67 @@ try:
         totalNumElems = int(strTotalNumElems[:-6])
 
     if totalNumElems == 0:
+        # tableCitilink.insert("", END, values=("Товары не найдены", ""))
         driver.quit()
-
-    print(totalNumElems)
-
-    # targetElem = WebDriverWait(driver, 10).until(
-    #     EC.presence_of_element_located((By.CLASS_NAME, 'e1j9birj0')))
+        # return
 
 
-    # totalNumElems = int(driver.find_element(By.CLASS_NAME, 'e1di3r8d0').text[:-8])
-    # numElems = 48
+    pageNumElems = 48
+    if totalNumElems < pageNumElems:
+        lastPageIndex = 1
+        lastPageNumElems = totalNumElems
+    else:
+        if totalNumElems % 48 == 0:
+            lastPageIndex = totalNumElems / 48
+            lastPageNumElems = 48
+        else:
+            lastPageIndex = totalNumElems // 48 + 1
+            lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 48
 
-    # if totalNumElems < numElems:
-    #     numElems = totalNumElems
 
-    # elems = driver.find_elements(By.CSS_SELECTOR, '.e1j9birj0.e106ikdt0.app-catalog-175fskm.e1gjr6xo0')
+    urlPageIndStartPos = url.find("p=")
+    urlPageIndEndPos = url.find("&", urlPageIndStartPos)
 
-    # while len(elems) < numElems:
-    #     time.sleep(0.5)
-    #     elems = driver.find_elements(By.CSS_SELECTOR, '.e1j9birj0.e106ikdt0.app-catalog-175fskm.e1gjr6xo0')
-    #     driver.execute_script("window.scrollBy(0, 400)")
+    urlWithoutPageInd = [url[:urlPageIndStartPos + 2], url[urlPageIndEndPos:]]
 
-    # while len(elems) > numElems:
-    #     elems.pop()
+    pageIndex = 1
+    while pageIndex <= lastPageIndex:
+        if pageIndex != 1:
+            driver.get(url)
 
-    # prices = []
-    # for x in elems:
-    #     prices.append(x.text)
+        if pageIndex == lastPageIndex:
+            pageNumElems = lastPageNumElems
 
-    # print(len(prices))
-    # print(prices)
-    
-    # i = 0
-    # while i < len(prices):
-    #     index = prices[i].find("\n")
-    #     if index != -1:
-    #         prices[i] = prices[i][:(index - 2)]
-    #     else: i+=1
+        priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1j9birj0')))
+        nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1259i3g0')))
+            
+        pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
+        pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
 
-    # f = open('data-citilink.txt', 'w')
-    # f.write(str(prices))
-    # f.close()
+        while len(pagePriceElems) < pageNumElems or len(pageNameElems) < pageNumElems:
+            time.sleep(0.5)
+            pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
+            pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
+            driver.execute_script("window.scrollBy(0, 600)")
+
+        while len(pagePriceElems) > pageNumElems:
+            pagePriceElems.pop()
+
+        while len(pageNameElems) > pageNumElems:
+            pageNameElems.pop()
+
+        for x in pagePriceElems:
+            prices.append(x.text)
+
+        for y in pageNameElems:
+            names.append(y.text)
+
+        pageIndex += 1
+        url = str(pageIndex).join(urlWithoutPageInd)
+
+    print(prices)
+    print(names)
+
 
 except TimeoutException:
     print("Ошибка!")

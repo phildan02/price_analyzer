@@ -36,7 +36,7 @@ def dnsGetData():
         names = []
 
         driver.get(url)
-        prodCountTargetElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'products-count')))
+        prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'products-count')))
         
         strTotalNumElems = driver.find_element(By.CLASS_NAME, 'products-count').text
         if strTotalNumElems[-1] == "в":
@@ -64,8 +64,8 @@ def dnsGetData():
                 lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 18
 
 
-        urlPageInd = url.find("p=")
-        urlWithoutPageInd = url[:urlPageInd + 2]
+        urlPageIndPos = url.find("p=")
+        urlWithoutPageInd = url[:urlPageIndPos + 2]
         
         pageIndex = 1
         while pageIndex <= lastPageIndex:
@@ -75,8 +75,8 @@ def dnsGetData():
             if pageIndex == lastPageIndex:
                 pageNumElems = lastPageNumElems
 
-            priceTargetElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-buy__price')))
-            nameTargetElem = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'catalog-product__name')))
+            priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-buy__price')))
+            nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'catalog-product__name')))
             
             pagePriceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
             pageNameElems = driver.find_elements(By.CLASS_NAME, 'catalog-product__name')
