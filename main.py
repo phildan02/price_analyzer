@@ -18,7 +18,6 @@ options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--headless")
 
 
-url = ""
 
 def dnsGetData():
     if tableDns.get_children("") != ():
@@ -36,11 +35,12 @@ def dnsGetData():
     fix_hairline=True)
 
     try:
-        global url
+        global dnsUrl
+
         prices = []
         names = []
-
-        driver.get(url)
+        
+        driver.get(dnsUrl)
         prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'products-count')))
         
         strTotalNumElems = driver.find_element(By.CLASS_NAME, 'products-count').text
@@ -69,13 +69,13 @@ def dnsGetData():
                 lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 18
 
 
-        urlPageIndPos = url.find("p=")
-        urlWithoutPageInd = url[:urlPageIndPos + 2]
+        urlPageIndPos = dnsUrl.find("p=")
+        urlWithoutPageInd = dnsUrl[:urlPageIndPos + 2]
         
         pageIndex = 1
         while pageIndex <= lastPageIndex:
             if pageIndex != 1:
-                driver.get(url)
+                driver.get(dnsUrl)
 
             if pageIndex == lastPageIndex:
                 pageNumElems = lastPageNumElems
@@ -99,7 +99,7 @@ def dnsGetData():
                 names.append(y.text)
 
             pageIndex += 1
-            url = urlWithoutPageInd + str(pageIndex)
+            dnsUrl = urlWithoutPageInd + str(pageIndex)
 
 
         i = 0
@@ -129,95 +129,110 @@ def dnsGetData():
 
 
 
-# def citilinkGetData():
-#     try:
-#         global url
-#         prices = []
-#         names = []
+def citilinkGetData():
+    if tableCitilink.get_children("") != ():
+        for b in tableCitilink.get_children(""): 
+            tableCitilink.delete(b)
 
-#         driver.get(url)
-#         prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1di3r8d0')))
+    driver = webdriver.Chrome(options=options)
+
+    stealth(driver,
+    languages=["en-US", "en"],
+    vendor="Google Inc.",
+    platform="Win32",
+    webgl_vendor="Intel Inc.",
+    renderer="Intel Iris OpenGL Engine",
+    fix_hairline=True)
+
+    try:
+        global citilinkUrl
+
+        prices = []
+        names = []
+
+        driver.get(citilinkUrl)
+        prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1di3r8d0')))
         
-#         strTotalNumElems = driver.find_element(By.CLASS_NAME, 'e1di3r8d0').text
-#         if strTotalNumElems[-1] == "в":
-#             totalNumElems = int(strTotalNumElems[:-8])
-#         elif strTotalNumElems[-1] == "а":
-#             totalNumElems = int(strTotalNumElems[:-7])
-#         else:
-#             totalNumElems = int(strTotalNumElems[:-6])
+        strTotalNumElems = driver.find_element(By.CLASS_NAME, 'e1di3r8d0').text
+        if strTotalNumElems[-1] == "в":
+            totalNumElems = int(strTotalNumElems[:-8])
+        elif strTotalNumElems[-1] == "а":
+            totalNumElems = int(strTotalNumElems[:-7])
+        else:
+            totalNumElems = int(strTotalNumElems[:-6])
 
-#         if totalNumElems == 0:
-#             tableCitilink.insert("", END, values=("Товары не найдены", ""))
-#             driver.quit()
-#             return
-
-
-#         pageNumElems = 48
-#         if totalNumElems < pageNumElems:
-#             lastPageIndex = 1
-#             lastPageNumElems = totalNumElems
-#         else:
-#             if totalNumElems % 48 == 0:
-#                 lastPageIndex = totalNumElems / 48
-#                 lastPageNumElems = 48
-#             else:
-#                 lastPageIndex = totalNumElems // 48 + 1
-#                 lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 48
+        if totalNumElems == 0:
+            tableCitilink.insert("", END, values=("Товары не найдены", ""))
+            driver.quit()
+            return
 
 
-#         urlPageIndStartPos = url.find("p=")
-#         urlPageIndEndPos = url.find("&", urlPageIndStartPos)
+        pageNumElems = 48
+        if totalNumElems < pageNumElems:
+            lastPageIndex = 1
+            lastPageNumElems = totalNumElems
+        else:
+            if totalNumElems % 48 == 0:
+                lastPageIndex = totalNumElems / 48
+                lastPageNumElems = 48
+            else:
+                lastPageIndex = totalNumElems // 48 + 1
+                lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 48
 
-#         urlWithoutPageInd = [url[:urlPageIndStartPos + 2], url[urlPageIndEndPos:]]
 
-#         pageIndex = 1
-#         while pageIndex <= lastPageIndex:
-#             if pageIndex != 1:
-#                 driver.get(url)
+        urlPageIndStartPos = citilinkUrl.find("p=")
+        urlPageIndEndPos = citilinkUrl.find("&", urlPageIndStartPos)
 
-#             if pageIndex == lastPageIndex:
-#                 pageNumElems = lastPageNumElems
+        urlWithoutPageInd = [citilinkUrl[:urlPageIndStartPos + 2], citilinkUrl[urlPageIndEndPos:]]
 
-#             priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1j9birj0')))
-#             nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1259i3g0')))
+        pageIndex = 1
+        while pageIndex <= lastPageIndex:
+            if pageIndex != 1:
+                driver.get(citilinkUrl)
+
+            if pageIndex == lastPageIndex:
+                pageNumElems = lastPageNumElems
+
+            priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1j9birj0')))
+            nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1259i3g0')))
                 
-#             pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
-#             pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
+            pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
+            pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
 
-#             while len(pagePriceElems) < pageNumElems or len(pageNameElems) < pageNumElems:
-#                 time.sleep(0.5)
-#                 pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
-#                 pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
-#                 driver.execute_script("window.scrollBy(0, 600)")
+            while len(pagePriceElems) < pageNumElems or len(pageNameElems) < pageNumElems:
+                time.sleep(0.5)
+                pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
+                pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
+                driver.execute_script("window.scrollBy(0, 600)")
 
-#             while len(pagePriceElems) > pageNumElems:
-#                 pagePriceElems.pop()
+            while len(pagePriceElems) > pageNumElems:
+                pagePriceElems.pop()
 
-#             while len(pageNameElems) > pageNumElems:
-#                 pageNameElems.pop()
+            while len(pageNameElems) > pageNumElems:
+                pageNameElems.pop()
 
-#             for x in pagePriceElems:
-#                 prices.append(x.text)
+            for x in pagePriceElems:
+                prices.append(x.text)
 
-#             for y in pageNameElems:
-#                 names.append(y.text)
+            for y in pageNameElems:
+                names.append(y.text)
 
-#             pageIndex += 1
-#             url = str(pageIndex).join(urlWithoutPageInd)
+            pageIndex += 1
+            citilinkUrl = str(pageIndex).join(urlWithoutPageInd)
 
-#         for g in range(len(prices)):
-#             tableCitilink.insert("", END, values=(names[g], prices[g]))
+        for g in range(len(prices)):
+            tableCitilink.insert("", END, values=(names[g], prices[g]))
 
-#         l = 0
-#         for k in tableCitilink.get_children(""):
-#             l += 1
-#         print(l)
+        l = 0
+        for k in tableCitilink.get_children(""):
+            l += 1
+        print(l)
 
 
-#     except TimeoutException:
-#         print("Ошибка!")
+    except TimeoutException:
+        print("Ошибка!")
 
-#     driver.quit()
+    driver.quit()
 
 
 
@@ -244,9 +259,9 @@ ctgsBox = ttk.Combobox(values=categories, state="readonly")
 ctgsBox.current(0)
 ctgsBox.place(x=80, y=10)
 
-mntrBrands = ["Acer", "AOC", "Asus", "Dell", "Samsung"]
-pcBrands = ["Acer", "Asus", "Hiper", "IRU", "MSI"]
-usbFlashBrands = ["Kingston", "Mirex", "Sandisk", "Silicon Power", "Smartbuy"]
+mntrBrands = ["Acer", "AOC", "Dell", "LG", "Samsung"]
+pcBrands = ["Acer", "Asus", "IRU", "Lenovo", "MSI"]
+usbFlashBrands = ["A-DATA", "Kingston", "Sandisk", "Silicon Power", "Smartbuy"]
 
 
 ctgsBoxLastValue = 0
@@ -457,40 +472,74 @@ def correctnessCheck():
 
 
     if rsrcErr["text"] == "" and prcRangeErr["text"] == "" and brandErr["text"] == "":
-        global url
+        if rsrcVars[0].get():
+            global dnsUrl
+            dnsUrlPriceRange = f'price={prcMinEntry.get()}-{prcMaxEntry.get()}'
+            dnsUrlBrands = "brand="
+            for e in range(5):
+                if brandVars[e].get() == 1:
+                    dnsUrlBrands += brandNamesVars[e].get().lower().replace(' ', '').replace('-', '') + "-"
+            dnsUrlBrands = dnsUrlBrands[:-1]
 
-        urlPriceRange = f'price={prcMinEntry.get()}-{prcMaxEntry.get()}'
+            if ctgsBox.current() == 0:
+                dnsUrl = f'https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/?{dnsUrlPriceRange}&{dnsUrlBrands}&p=1'
+            elif ctgsBox.current() == 1:
+                dnsUrl = f'https://www.dns-shop.ru/catalog/17a8932c16404e77/personalnye-kompyutery/?{dnsUrlPriceRange}&{dnsUrlBrands}&p=1'
+            else:
+                dnsUrl = f'https://www.dns-shop.ru/catalog/ce3bebe8448b4e77/usb-flash/?{dnsUrlPriceRange}&{dnsUrlBrands}&p=1'
 
-        urlBrands = "brand="
-        for e in range(5):
-            if brandVars[e].get() == 1:
-                urlBrands += brandNamesVars[e].get().lower().replace(' ', '') + "-"
-        urlBrands = urlBrands[:-1]
+        
+        if rsrcVars[1].get():
+            global citilinkUrl
+            citilinkUrlBrandsArr = []
+            for e in range(5):
+                if brandVars[e].get() == 1:
+                    citilinkUrlBrandsArr.append(brandNamesVars[e].get().lower().replace(' ', '%20'))
+            citilinkUrlBrands = ""
+            for p in range(len(citilinkUrlBrandsArr)):
+                citilinkUrlBrands += "%2C" + citilinkUrlBrandsArr[p]
+            citilinkUrlBrandsCrop = ""
+            for p in range(len(citilinkUrlBrandsArr) - 1):
+                citilinkUrlBrandsCrop += "%2C" + citilinkUrlBrandsArr[p]
 
-        if ctgsBox.current() == 0:
-            url = f'https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/?{urlPriceRange}&{urlBrands}&p=1'
-        elif ctgsBox.current() == 1:
-            url = f'https://www.dns-shop.ru/catalog/17a8932c16404e77/personalnye-kompyutery/?{urlPriceRange}&{urlBrands}&p=1'
-        else:
-            url = f'https://www.dns-shop.ru/catalog/ce3bebe8448b4e77/usb-flash/?{urlPriceRange}&{urlBrands}&p=1'
+            if ctgsBox.current() == 0:
+                citilinkUrl = f'https://www.citilink.ru/catalog/monitory/?p=1&sorting=price_asc&pf=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrandsCrop}&f=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrands}&pprice_min={prcMinEntry.get()}&pprice_max={prcMaxEntry.get()}&price_min={prcMinEntry.get()}&price_max={prcMaxEntry.get()}'
+            elif ctgsBox.current() == 1:
+                citilinkUrl = f'https://www.citilink.ru/catalog/sistemnye-bloki/?p=1&sorting=price_asc&pf=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrandsCrop}&f=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrands}&pprice_min={prcMinEntry.get()}&pprice_max={prcMaxEntry.get()}&price_min={prcMinEntry.get()}&price_max={prcMaxEntry.get()}'
+            else:
+                citilinkUrl = f'https://www.citilink.ru/catalog/fleshki/?p=1&sorting=price_asc&pf=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrandsCrop}&f=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrands}&pprice_min={prcMinEntry.get()}&pprice_max={prcMaxEntry.get()}&price_min={prcMinEntry.get()}&price_max={prcMaxEntry.get()}'
+
 
 
         global dnsThread
+        global citilinkThread
+
         dnsThread = Thread(target=dnsGetData)
         dnsThread.daemon = True
+
+        citilinkThread = Thread(target=citilinkGetData)
+        citilinkThread.daemon = True
 
         btnStateThr = Thread(target=btnStateReset)
         btnStateThr.daemon = True
 
-        dnsThread.start()
+        if rsrcVars[0].get():
+            dnsThread.start()
+        if rsrcVars[1].get():
+            citilinkThread.start()
+        
         btnStateThr.start()
         getBtn["state"] = DISABLED
         processInfo["text"] = "Получение информации о товарах..."
 
 
 def btnStateReset():
-    dnsThread.join()
+    if dnsThread.is_alive():
+        dnsThread.join()
+    if citilinkThread.is_alive():
+        citilinkThread.join()
     getBtn["state"] = NORMAL
+    processInfo["text"] = ""
 
 
 getBtn = ttk.Button(text="Получить данные", padding=[5, 0], command=correctnessCheck)
