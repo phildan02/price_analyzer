@@ -17,20 +17,24 @@ options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
 options.add_argument("--headless")
 
-driver = webdriver.Chrome(options=options)
-
-stealth(driver,
-        languages=["en-US", "en"],
-        vendor="Google Inc.",
-        platform="Win32",
-        webgl_vendor="Intel Inc.",
-        renderer="Intel Iris OpenGL Engine",
-        fix_hairline=True
-        )
 
 url = ""
 
 def dnsGetData():
+    if tableDns.get_children("") != ():
+        for b in tableDns.get_children(""): 
+            tableDns.delete(b)
+
+    driver = webdriver.Chrome(options=options)
+
+    stealth(driver,
+    languages=["en-US", "en"],
+    vendor="Google Inc.",
+    platform="Win32",
+    webgl_vendor="Intel Inc.",
+    renderer="Intel Iris OpenGL Engine",
+    fix_hairline=True)
+
     try:
         global url
         prices = []
@@ -125,95 +129,95 @@ def dnsGetData():
 
 
 
-def citilinkGetData():
-    try:
-        global url
-        prices = []
-        names = []
+# def citilinkGetData():
+#     try:
+#         global url
+#         prices = []
+#         names = []
 
-        driver.get(url)
-        prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1di3r8d0')))
+#         driver.get(url)
+#         prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1di3r8d0')))
         
-        strTotalNumElems = driver.find_element(By.CLASS_NAME, 'e1di3r8d0').text
-        if strTotalNumElems[-1] == "в":
-            totalNumElems = int(strTotalNumElems[:-8])
-        elif strTotalNumElems[-1] == "а":
-            totalNumElems = int(strTotalNumElems[:-7])
-        else:
-            totalNumElems = int(strTotalNumElems[:-6])
+#         strTotalNumElems = driver.find_element(By.CLASS_NAME, 'e1di3r8d0').text
+#         if strTotalNumElems[-1] == "в":
+#             totalNumElems = int(strTotalNumElems[:-8])
+#         elif strTotalNumElems[-1] == "а":
+#             totalNumElems = int(strTotalNumElems[:-7])
+#         else:
+#             totalNumElems = int(strTotalNumElems[:-6])
 
-        if totalNumElems == 0:
-            tableCitilink.insert("", END, values=("Товары не найдены", ""))
-            driver.quit()
-            return
-
-
-        pageNumElems = 48
-        if totalNumElems < pageNumElems:
-            lastPageIndex = 1
-            lastPageNumElems = totalNumElems
-        else:
-            if totalNumElems % 48 == 0:
-                lastPageIndex = totalNumElems / 48
-                lastPageNumElems = 48
-            else:
-                lastPageIndex = totalNumElems // 48 + 1
-                lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 48
+#         if totalNumElems == 0:
+#             tableCitilink.insert("", END, values=("Товары не найдены", ""))
+#             driver.quit()
+#             return
 
 
-        urlPageIndStartPos = url.find("p=")
-        urlPageIndEndPos = url.find("&", urlPageIndStartPos)
+#         pageNumElems = 48
+#         if totalNumElems < pageNumElems:
+#             lastPageIndex = 1
+#             lastPageNumElems = totalNumElems
+#         else:
+#             if totalNumElems % 48 == 0:
+#                 lastPageIndex = totalNumElems / 48
+#                 lastPageNumElems = 48
+#             else:
+#                 lastPageIndex = totalNumElems // 48 + 1
+#                 lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 48
 
-        urlWithoutPageInd = [url[:urlPageIndStartPos + 2], url[urlPageIndEndPos:]]
 
-        pageIndex = 1
-        while pageIndex <= lastPageIndex:
-            if pageIndex != 1:
-                driver.get(url)
+#         urlPageIndStartPos = url.find("p=")
+#         urlPageIndEndPos = url.find("&", urlPageIndStartPos)
 
-            if pageIndex == lastPageIndex:
-                pageNumElems = lastPageNumElems
+#         urlWithoutPageInd = [url[:urlPageIndStartPos + 2], url[urlPageIndEndPos:]]
 
-            priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1j9birj0')))
-            nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1259i3g0')))
+#         pageIndex = 1
+#         while pageIndex <= lastPageIndex:
+#             if pageIndex != 1:
+#                 driver.get(url)
+
+#             if pageIndex == lastPageIndex:
+#                 pageNumElems = lastPageNumElems
+
+#             priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1j9birj0')))
+#             nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1259i3g0')))
                 
-            pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
-            pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
+#             pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
+#             pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
 
-            while len(pagePriceElems) < pageNumElems or len(pageNameElems) < pageNumElems:
-                time.sleep(0.5)
-                pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
-                pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
-                driver.execute_script("window.scrollBy(0, 600)")
+#             while len(pagePriceElems) < pageNumElems or len(pageNameElems) < pageNumElems:
+#                 time.sleep(0.5)
+#                 pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
+#                 pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
+#                 driver.execute_script("window.scrollBy(0, 600)")
 
-            while len(pagePriceElems) > pageNumElems:
-                pagePriceElems.pop()
+#             while len(pagePriceElems) > pageNumElems:
+#                 pagePriceElems.pop()
 
-            while len(pageNameElems) > pageNumElems:
-                pageNameElems.pop()
+#             while len(pageNameElems) > pageNumElems:
+#                 pageNameElems.pop()
 
-            for x in pagePriceElems:
-                prices.append(x.text)
+#             for x in pagePriceElems:
+#                 prices.append(x.text)
 
-            for y in pageNameElems:
-                names.append(y.text)
+#             for y in pageNameElems:
+#                 names.append(y.text)
 
-            pageIndex += 1
-            url = str(pageIndex).join(urlWithoutPageInd)
+#             pageIndex += 1
+#             url = str(pageIndex).join(urlWithoutPageInd)
 
-        for g in range(len(prices)):
-            tableCitilink.insert("", END, values=(names[g], prices[g]))
+#         for g in range(len(prices)):
+#             tableCitilink.insert("", END, values=(names[g], prices[g]))
 
-        l = 0
-        for k in tableCitilink.get_children(""):
-            l += 1
-        print(l)
+#         l = 0
+#         for k in tableCitilink.get_children(""):
+#             l += 1
+#         print(l)
 
 
-    except TimeoutException:
-        print("Ошибка!")
+#     except TimeoutException:
+#         print("Ошибка!")
 
-    driver.quit()
+#     driver.quit()
 
 
 
@@ -465,7 +469,6 @@ def correctnessCheck():
 
         if ctgsBox.current() == 0:
             url = f'https://www.dns-shop.ru/catalog/17a8943716404e77/monitory/?{urlPriceRange}&{urlBrands}&p=1'
-            # url = "https://www.citilink.ru/catalog/monitory/?p=1&pf=available.all%2Cdiscount.any%2Crating.any&f=available.all%2Cdiscount.any%2Crating.any&pprice_min=6990&price_min=6990&price_max=18795"
         elif ctgsBox.current() == 1:
             url = f'https://www.dns-shop.ru/catalog/17a8932c16404e77/personalnye-kompyutery/?{urlPriceRange}&{urlBrands}&p=1'
         else:
@@ -482,20 +485,19 @@ def correctnessCheck():
         dnsThread.start()
         btnStateThr.start()
         getBtn["state"] = DISABLED
-        getBtn["text"] = "Получение информации о товарах..."
+        processInfo["text"] = "Получение информации о товарах..."
 
 
 def btnStateReset():
     dnsThread.join()
     getBtn["state"] = NORMAL
-    processInfo["text"] = "Информация получена"
 
 
-getBtn = ttk.Button(text="Получить данные", padding=[5, 0], width=25, command=correctnessCheck)
-getBtn.place(x=470, y=47, height=83)
+getBtn = ttk.Button(text="Получить данные", padding=[5, 0], command=correctnessCheck)
+getBtn.place(x=470, y=47, width=120, height=83)
 
-processInfo = ttk.Label(wraplength=110)
-processInfo.place(x=470, y=135)
+processInfo = ttk.Label(justify=CENTER, wraplength=120)
+processInfo.place(x=530, y=135, anchor=N)
 
 
 root.mainloop()
