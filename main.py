@@ -7,7 +7,6 @@ from selenium_stealth import stealth
 import time
 from tkinter import *
 from tkinter import ttk
-import re
 from threading import Thread
 
 
@@ -152,7 +151,7 @@ def citilinkGetData():
 
         driver.get(citilinkUrl)
         prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1di3r8d0')))
-        
+
         strTotalNumElems = driver.find_element(By.CLASS_NAME, 'e1di3r8d0').text
         if strTotalNumElems[-1] == "в":
             totalNumElems = int(strTotalNumElems[:-8])
