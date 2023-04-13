@@ -14,7 +14,7 @@ options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
-# options.add_argument("--headless")
+options.add_argument("--headless")
 
 
 
@@ -116,9 +116,11 @@ def dnsGetData():
 
 
     except TimeoutException:
-        for g in range(len(prices)):
-            tableDns.insert("", END, values=(names[g], prices[g]))
-        print("Ошибка!")
+        if len(prices) != 0:
+            for g in range(len(prices)):
+                tableDns.insert("", END, values=(names[g], prices[g]))
+        else:
+            tableDns.insert("", END, values=("Ошибка получения информации", ""))
 
     driver.quit()
 
@@ -246,9 +248,11 @@ def citilinkGetData():
 
 
     except TimeoutException:        
-        for g in range(len(prices)):
-            tableCitilink.insert("", END, values=(names[g], prices[g]))
-        print("Ошибка!")
+        if len(prices) != 0:
+            for g in range(len(prices)):
+                tableCitilink.insert("", END, values=(names[g], prices[g]))
+        else:
+            tableCitilink.insert("", END, values=("Ошибка получения информации", ""))
 
     driver.quit()
 
