@@ -19,10 +19,6 @@ options.add_argument("--headless")
 
 
 def dnsGetData():
-    if tableDns.get_children("") != ():
-        for b in tableDns.get_children(""): 
-            tableDns.delete(b)
-
     driver = webdriver.Chrome(options=options)
 
     stealth(driver,
@@ -129,10 +125,6 @@ def dnsGetData():
 
 
 def citilinkGetData():
-    if tableCitilink.get_children("") != ():
-        for b in tableCitilink.get_children(""): 
-            tableCitilink.delete(b)
-
     driver = webdriver.Chrome(options=options)
 
     stealth(driver,
@@ -510,34 +502,62 @@ def correctnessCheck():
 
 
 
-        global dnsThread
-        global citilinkThread
+        global rsrcThreads
+        rsrcThreads = []
 
-        dnsThread = Thread(target=dnsGetData)
-        dnsThread.daemon = True
+        rsrcThreads.append(Thread(target=dnsGetData))
+        rsrcThreads.append(Thread(target=citilinkGetData))
 
-        citilinkThread = Thread(target=citilinkGetData)
-        citilinkThread.daemon = True
+        for m in range(2):
+            rsrcThreads[m].daemon = True
 
-        btnStateThr = Thread(target=btnStateReset)
-        btnStateThr.daemon = True
 
-        if rsrcVars[0].get():
-            dnsThread.start()
-        if rsrcVars[1].get():
-            citilinkThread.start()
-        
-        btnStateThr.start()
-        getBtn["state"] = DISABLED
+        threadsControl = Thread(target=threadsControlFunc)
+        threadsControl.daemon = True
+        threadsControl.start()
+        disableInterface()
         processInfo["text"] = "Получение информации о товарах..."
 
+        if tableDns.get_children("") != ():
+            for x in tableDns.get_children(""): 
+                tableDns.delete(x)
+        if tableCitilink.get_children("") != ():
+            for x in tableCitilink.get_children(""): 
+                tableCitilink.delete(x)
+        if tableMvideo.get_children("") != ():
+            for x in tableMvideo.get_children(""): 
+                tableMvideo.delete(x)
 
-def btnStateReset():
-    if dnsThread.is_alive():
-        dnsThread.join()
-    if citilinkThread.is_alive():
-        citilinkThread.join()
+
+def disableInterface():
+    getBtn["state"] = DISABLED
+    ctgsBox["state"] = DISABLED
+    for a in range(3):
+        rsrcCheckbtns[a]["state"] = DISABLED
+    prcMinEntry["state"] = DISABLED
+    prcMaxEntry["state"] = DISABLED
+    for b in range(5):
+        brandCheckbtns[b]["state"] = DISABLED
+    brandAllCheckbtn["state"] = DISABLED
+
+def enableInterface():
     getBtn["state"] = NORMAL
+    ctgsBox["state"] = NORMAL
+    for a in range(3):
+        rsrcCheckbtns[a]["state"] = NORMAL
+    prcMinEntry["state"] = NORMAL
+    prcMaxEntry["state"] = NORMAL
+    for b in range(5):
+        brandCheckbtns[b]["state"] = NORMAL
+    brandAllCheckbtn["state"] = NORMAL
+
+def threadsControlFunc():
+    for n in range(3):
+        if rsrcVars[n].get():
+            rsrcThreads[n].start()
+            rsrcThreads[n].join()
+
+    enableInterface()
     processInfo["text"] = ""
 
 
