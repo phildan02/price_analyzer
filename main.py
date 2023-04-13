@@ -14,7 +14,7 @@ options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
-options.add_argument("--headless")
+# options.add_argument("--headless")
 
 
 
@@ -116,6 +116,8 @@ def dnsGetData():
 
 
     except TimeoutException:
+        for g in range(len(prices)):
+            tableDns.insert("", END, values=(names[g], prices[g]))
         print("Ошибка!")
 
     driver.quit()
@@ -142,9 +144,27 @@ def citilinkGetData():
         names = []
 
         driver.get(citilinkUrl)
-        prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1di3r8d0')))
 
-        strTotalNumElems = driver.find_element(By.CLASS_NAME, 'e1di3r8d0').text
+        prodCategoryTitleElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1e4gwta0')))
+        prodTitleCountElem = driver.find_element(By.CLASS_NAME, 'e5lybcd0').find_elements(By.CSS_SELECTOR, '*')
+
+        if len(prodTitleCountElem) == 1:
+            tableCitilink.insert("", END, values=("Товары не найдены", ""))
+            driver.quit()
+            return
+
+
+        citilinkPrcRangeTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'eklthoe0')))
+        citilinkPrcRangeElems = driver.find_element(By.CLASS_NAME, 'eklthoe0').find_elements(By.TAG_NAME, 'input')
+        
+        citilinkPrcRange = []
+        for t in range(2):
+            citilinkPrcRange.append(citilinkPrcRangeElems[t].get_attribute("value"))
+        print("HISUIGHIGUWRH(&*^&*&%^&*%*)")
+        print(citilinkPrcRange)
+        print("HISUIGHIGUWRH(&*^&*&%^&*%*)")
+
+        strTotalNumElems = prodTitleCountElem[1].text
         if strTotalNumElems[-1] == "в":
             totalNumElems = int(strTotalNumElems[:-8])
         elif strTotalNumElems[-1] == "а":
@@ -220,7 +240,9 @@ def citilinkGetData():
         print(l)
 
 
-    except TimeoutException:
+    except TimeoutException:        
+        for g in range(len(prices)):
+            tableCitilink.insert("", END, values=(names[g], prices[g]))
         print("Ошибка!")
 
     driver.quit()
