@@ -160,9 +160,14 @@ def citilinkGetData():
         citilinkPrcRange = []
         for t in range(2):
             citilinkPrcRange.append(citilinkPrcRangeElems[t].get_attribute("value"))
-        print("HISUIGHIGUWRH(&*^&*&%^&*%*)")
-        print(citilinkPrcRange)
-        print("HISUIGHIGUWRH(&*^&*&%^&*%*)")
+            citilinkPrcRange[t] = citilinkPrcRange[t].split()
+            citilinkPrcRange[t] = ''.join(citilinkPrcRange[t])
+
+        if int(prcMaxEntry.get()) < int(citilinkPrcRange[0]):
+            tableCitilink.insert("", END, values=("Товары не найдены", ""))
+            driver.quit()
+            return
+
 
         strTotalNumElems = prodTitleCountElem[1].text
         if strTotalNumElems[-1] == "в":
