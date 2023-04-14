@@ -257,6 +257,108 @@ def citilinkGetData():
     driver.quit()
 
 
+def mvideoGetData():
+    driver = webdriver.Chrome(options=options)
+
+    stealth(driver,
+    languages=["en-US", "en"],
+    vendor="Google Inc.",
+    platform="Win32",
+    webgl_vendor="Intel Inc.",
+    renderer="Intel Iris OpenGL Engine",
+    fix_hairline=True)
+
+    try:
+        global mvideoUrl
+
+        prices = []
+        names = []
+        
+        driver.get(mvideoUrl)
+
+        prodCountTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '.count.ng-star-inserted')))
+        totalNumElems = int(driver.find_element(By.CSS_SELECTOR, '.count.ng-star-inserted').text)
+
+        if totalNumElems == 0:
+            tableMvideo.insert("", END, values=("Товары не найдены", ""))
+            driver.quit()
+            return
+
+        pageNumElems = 24
+        if totalNumElems < pageNumElems:
+            lastPageIndex = 1
+            lastPageNumElems = totalNumElems
+        else:
+            if totalNumElems % 24 == 0:
+                lastPageIndex = totalNumElems / 24
+                lastPageNumElems = 24
+            else:
+                lastPageIndex = totalNumElems // 24 + 1
+                lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 24
+
+
+        print(lastPageIndex)
+        print(lastPageNumElems)
+ 
+    #     urlPageIndPos = dnsUrl.find("p=")
+    #     urlWithoutPageInd = dnsUrl[:urlPageIndPos + 2]
+        
+    #     pageIndex = 1
+    #     while pageIndex <= lastPageIndex:
+    #         if pageIndex != 1:
+    #             driver.get(dnsUrl)
+
+    #         if pageIndex == lastPageIndex:
+    #             pageNumElems = lastPageNumElems
+
+    #         priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-buy__price')))
+    #         nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'catalog-product__name')))
+            
+    #         pagePriceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+    #         pageNameElems = driver.find_elements(By.CLASS_NAME, 'catalog-product__name')
+
+    #         while len(pagePriceElems) != pageNumElems or len(pageNameElems) != pageNumElems:
+    #             time.sleep(0.5)
+    #             pagePriceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+    #             pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+    #             driver.execute_script("window.scrollBy(0, 800)")
+
+    #         for x in pagePriceElems:
+    #             prices.append(x.text[:-2])
+
+    #         for y in pageNameElems:
+    #             names.append(y.text)
+
+    #         pageIndex += 1
+    #         dnsUrl = urlWithoutPageInd + str(pageIndex)
+
+
+    #     i = 0
+    #     while i < len(prices):
+    #         index = prices[i].find("\n")
+    #         if index != -1:
+    #             prices[i] = prices[i][:(index - 2)]
+    #         else:
+    #             i += 1
+
+
+    #     for g in range(len(prices)):
+    #         tableDns.insert("", END, values=(names[g], prices[g]))
+
+    #     l = 0
+    #     for k in tableDns.get_children(""):
+    #         l += 1
+    #     print(l)
+
+
+    except TimeoutException:
+        if len(prices) != 0:
+            for g in range(len(prices)):
+                tableMvideo.insert("", END, values=(names[g], prices[g]))
+        else:
+            tableMvideo.insert("", END, values=("Ошибка получения информации", ""))
+
+    driver.quit()
 
 
 
@@ -532,14 +634,34 @@ def correctnessCheck():
                 citilinkUrl = f'https://www.citilink.ru/catalog/fleshki/?p=1&sorting=price_asc&pf=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrandsCrop}&f=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrands}&pprice_min={prcMinEntry.get()}&pprice_max={prcMaxEntry.get()}&price_min={prcMinEntry.get()}&price_max={prcMaxEntry.get()}'
 
 
+        if rsrcVars[2].get():
+            global mvideoUrl
+
+            mvideoUrlBrands = "f_brand="
+            for e in range(5):
+                if brandVars[e].get() == 1:
+                    mvideoUrlBrands += brandNamesVars[e].get().lower().replace(' ', '-') + ","
+            mvideoUrlBrands = mvideoUrlBrands[:-1]
+
+            mvideoUrlPriceRange = f'f_price={prcMinEntry.get()}-{prcMaxEntry.get()}'
+
+            if ctgsBox.current() == 0:
+                mvideoUrl = f'https://www.mvideo.ru/komputernaya-tehnika-4107/monitory-101?f_category=monitory-1263,igrovye-monitory-3587&{mvideoUrlBrands}&f_tolko-v-nalichii=da&{mvideoUrlPriceRange}&sort=price_asc&page=1'
+            elif ctgsBox.current() == 1:
+                mvideoUrl = f'https://www.mvideo.ru/komputernaya-tehnika-4107/sistemnye-bloki-80?{mvideoUrlBrands}&f_tolko-v-nalichii=da&{mvideoUrlPriceRange}&sort=price_asc&page=1'
+            else:
+                mvideoUrl = f'https://www.mvideo.ru/komputernye-aksessuary-24/flesh-nakopiteli-185?{mvideoUrlBrands}&f_tolko-v-nalichii=da&{mvideoUrlPriceRange}&sort=price_asc&page=1'
+
+        print(mvideoUrl)
 
         global rsrcThreads
         rsrcThreads = []
 
         rsrcThreads.append(Thread(target=dnsGetData))
         rsrcThreads.append(Thread(target=citilinkGetData))
+        rsrcThreads.append(Thread(target=mvideoGetData))
 
-        for m in range(2):
+        for m in range(3):
             rsrcThreads[m].daemon = True
 
 
