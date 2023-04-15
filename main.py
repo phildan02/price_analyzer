@@ -14,7 +14,7 @@ options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
-options.add_argument("--headless")
+# options.add_argument("--headless")
 
 
 
@@ -296,59 +296,49 @@ def mvideoGetData():
                 lastPageIndex = totalNumElems // 24 + 1
                 lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 24
 
-
-        print(lastPageIndex)
-        print(lastPageNumElems)
  
-    #     urlPageIndPos = dnsUrl.find("p=")
-    #     urlWithoutPageInd = dnsUrl[:urlPageIndPos + 2]
+        urlPageIndPos = mvideoUrl.find("page=")
+        urlWithoutPageInd = mvideoUrl[:urlPageIndPos + 5]
+
+        print(urlWithoutPageInd)
         
-    #     pageIndex = 1
-    #     while pageIndex <= lastPageIndex:
-    #         if pageIndex != 1:
-    #             driver.get(dnsUrl)
+        pageIndex = 1
+        while pageIndex <= lastPageIndex:
+            if pageIndex != 1:
+                driver.get(mvideoUrl)
 
-    #         if pageIndex == lastPageIndex:
-    #             pageNumElems = lastPageNumElems
+            if pageIndex == lastPageIndex:
+                pageNumElems = lastPageNumElems
 
-    #         priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-buy__price')))
-    #         nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'catalog-product__name')))
+            priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'price__main-value')))
+            nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-title__text')))
             
-    #         pagePriceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
-    #         pageNameElems = driver.find_elements(By.CLASS_NAME, 'catalog-product__name')
+            pagePriceElems = driver.find_elements(By.CLASS_NAME, 'price__main-value')
+            pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-title__text')
 
-    #         while len(pagePriceElems) != pageNumElems or len(pageNameElems) != pageNumElems:
-    #             time.sleep(0.5)
-    #             pagePriceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
-    #             pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
-    #             driver.execute_script("window.scrollBy(0, 800)")
+            while len(pagePriceElems) != pageNumElems or len(pageNameElems) != pageNumElems:
+                time.sleep(0.5)
+                pagePriceElems = driver.find_elements(By.CLASS_NAME, 'price__main-value')
+                pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-title__text')
+                driver.execute_script("window.scrollBy(0, 800)")
 
-    #         for x in pagePriceElems:
-    #             prices.append(x.text[:-2])
+            for x in pagePriceElems:
+                prices.append(x.text[:-2])
 
-    #         for y in pageNameElems:
-    #             names.append(y.text)
+            for y in pageNameElems:
+                names.append(y.text)
 
-    #         pageIndex += 1
-    #         dnsUrl = urlWithoutPageInd + str(pageIndex)
-
-
-    #     i = 0
-    #     while i < len(prices):
-    #         index = prices[i].find("\n")
-    #         if index != -1:
-    #             prices[i] = prices[i][:(index - 2)]
-    #         else:
-    #             i += 1
+            pageIndex += 1
+            mvideoUrl = urlWithoutPageInd + str(pageIndex)
 
 
-    #     for g in range(len(prices)):
-    #         tableDns.insert("", END, values=(names[g], prices[g]))
+        for g in range(len(prices)):
+            tableMvideo.insert("", END, values=(names[g], prices[g]))
 
-    #     l = 0
-    #     for k in tableDns.get_children(""):
-    #         l += 1
-    #     print(l)
+        l = 0
+        for k in tableMvideo.get_children(""):
+            l += 1
+        print(l)
 
 
     except TimeoutException:
@@ -640,7 +630,7 @@ def correctnessCheck():
             mvideoUrlBrands = "f_brand="
             for e in range(5):
                 if brandVars[e].get() == 1:
-                    mvideoUrlBrands += brandNamesVars[e].get().lower().replace(' ', '-') + ","
+                    mvideoUrlBrands += brandNamesVars[e].get().lower().replace('-', '').replace(' ', '-') + ","
             mvideoUrlBrands = mvideoUrlBrands[:-1]
 
             mvideoUrlPriceRange = f'f_price={prcMinEntry.get()}-{prcMaxEntry.get()}'
