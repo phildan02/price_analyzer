@@ -14,7 +14,7 @@ options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option('useAutomationExtension', False)
-# options.add_argument("--headless")
+options.add_argument("--headless")
 
 
 
@@ -283,6 +283,20 @@ def mvideoGetData():
             tableMvideo.insert("", END, values=("Товары не найдены", ""))
             driver.quit()
             return
+
+
+        mvideoPrcRangeTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'range__price')))
+        mvideoPrcRangeElems = driver.find_elements(By.CLASS_NAME, 'range__price')
+
+        mvideoPrcRange = []
+        for t in range(2):
+            mvideoPrcRange.append(mvideoPrcRangeElems[t].get_attribute("placeholder").replace(' ', ''))
+
+        if int(prcMaxEntry.get()) < int(mvideoPrcRange[0]):
+            tableMvideo.insert("", END, values=("Товары не найдены", ""))
+            driver.quit()
+            return
+
 
         pageNumElems = 24
         if totalNumElems < pageNumElems:
@@ -642,7 +656,6 @@ def correctnessCheck():
             else:
                 mvideoUrl = f'https://www.mvideo.ru/komputernye-aksessuary-24/flesh-nakopiteli-185?{mvideoUrlBrands}&f_tolko-v-nalichii=da&{mvideoUrlPriceRange}&sort=price_asc&page=1'
 
-        print(mvideoUrl)
 
         global rsrcThreads
         rsrcThreads = []
