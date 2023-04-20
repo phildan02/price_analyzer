@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
@@ -13,21 +14,23 @@ from threading import Thread
 options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
-options.add_experimental_option('useAutomationExtension', False)
-options.add_argument("--headless")
-
-
+options.add_experimental_option("useAutomationExtension", False)
+options.add_argument("--window-position=-32000,-32000")
+# options.add_argument("--headless")
+# service = Service(executable_path="C:\Philipp\coding\diploma_work\price_analyzer\chromedriver\chromedriver.exe")
 
 def dnsGetData():
     driver = webdriver.Chrome(options=options)
+    # driver = webdriver.Chrome(service=service, options=options)
 
-    stealth(driver,
-    languages=["en-US", "en"],
-    vendor="Google Inc.",
-    platform="Win32",
-    webgl_vendor="Intel Inc.",
-    renderer="Intel Iris OpenGL Engine",
-    fix_hairline=True)
+    stealth(driver=driver,
+        languages=["ru-RU", "ru"],
+        vendor="Google Inc.",
+        platform="Win32",
+        webgl_vendor="Intel Inc.",
+        renderer="Intel Iris OpenGL Engine",
+        fix_hairline=True,
+        run_on_insecure_origins=True)
 
     try:
         global dnsUrl
@@ -131,13 +134,14 @@ def dnsGetData():
 def citilinkGetData():
     driver = webdriver.Chrome(options=options)
 
-    stealth(driver,
-    languages=["en-US", "en"],
-    vendor="Google Inc.",
-    platform="Win32",
-    webgl_vendor="Intel Inc.",
-    renderer="Intel Iris OpenGL Engine",
-    fix_hairline=True)
+    stealth(driver=driver,
+        languages=["ru-RU", "ru"],
+        vendor="Google Inc.",
+        platform="Win32",
+        webgl_vendor="Intel Inc.",
+        renderer="Intel Iris OpenGL Engine",
+        fix_hairline=True,
+        run_on_insecure_origins=True)
 
     try:
         global citilinkUrl
@@ -197,6 +201,8 @@ def citilinkGetData():
                 lastPageIndex = totalNumElems // 48 + 1
                 lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 48
 
+        print(lastPageIndex)
+        print(lastPageNumElems)
 
         urlPageIndStartPos = citilinkUrl.find("p=")
         urlPageIndEndPos = citilinkUrl.find("&", urlPageIndStartPos)
@@ -213,27 +219,31 @@ def citilinkGetData():
 
             priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1j9birj0')))
             nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1259i3g0')))
-                
-            pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
-            pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
 
-            while len(pagePriceElems) < pageNumElems or len(pageNameElems) < pageNumElems:
+            pageElems = driver.find_elements(By.CSS_SELECTOR, '.app-catalog-1bogmvw > *')
+
+            while len(pageElems) < pageNumElems:
                 time.sleep(0.5)
-                pagePriceElems = driver.find_elements(By.CLASS_NAME, 'e1j9birj0')
-                pageNameElems = driver.find_elements(By.CLASS_NAME, 'e1259i3g0')
+                pageElems = driver.find_elements(By.CSS_SELECTOR, '.app-catalog-1bogmvw > *')
                 driver.execute_script("window.scrollBy(0, 600)")
 
-            while len(pagePriceElems) > pageNumElems:
-                pagePriceElems.pop()
+            ids = []
 
-            while len(pageNameElems) > pageNumElems:
-                pageNameElems.pop()
+            for a in range(len(pageElems)):
+                ids.append(pageElems[a].get_attribute('data-meta-product-id'))
 
-            for x in pagePriceElems:
-                prices.append(x.text)
+            outOfStock = []
 
-            for y in pageNameElems:
-                names.append(y.text)
+            for b in range(len(pageElems)):
+                outOfStock.append(driver.find_element(By.XPATH, "//div[@data-meta-product-id = '"+ids[b]+"']").find_element(By.CLASS_NAME, 'e1j9birj0').text)
+
+            print(outOfStock)
+
+            # for x in pagePriceElems:
+            #     prices.append(x.text)
+
+            # for y in pageNameElems:
+            #     names.append(y.text)
 
             pageIndex += 1
             citilinkUrl = str(pageIndex).join(urlWithoutPageInd)
@@ -257,6 +267,9 @@ def citilinkGetData():
     driver.quit()
 
 
+
+
+
 def mvideoGetData():
     driver = webdriver.Chrome(options=options)
 
@@ -266,7 +279,8 @@ def mvideoGetData():
     platform="Win32",
     webgl_vendor="Intel Inc.",
     renderer="Intel Iris OpenGL Engine",
-    fix_hairline=True)
+    fix_hairline=True,
+    run_on_insecure_origins=True)
 
     try:
         global mvideoUrl
@@ -314,7 +328,6 @@ def mvideoGetData():
         urlPageIndPos = mvideoUrl.find("page=")
         urlWithoutPageInd = mvideoUrl[:urlPageIndPos + 5]
 
-        print(urlWithoutPageInd)
         
         pageIndex = 1
         while pageIndex <= lastPageIndex:
@@ -577,7 +590,6 @@ notebook.add(tableMvideoFrame, text="М.видео")
 
 
 
-
 def correctnessCheck():
     for u in range(len(rsrcVars)):
         if rsrcVars[u].get() == True:
@@ -637,6 +649,7 @@ def correctnessCheck():
             else:
                 citilinkUrl = f'https://www.citilink.ru/catalog/fleshki/?p=1&sorting=price_asc&pf=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrandsCrop}&f=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrands}&pprice_min={prcMinEntry.get()}&pprice_max={prcMaxEntry.get()}&price_min={prcMinEntry.get()}&price_max={prcMaxEntry.get()}'
 
+            print(citilinkUrl)
 
         if rsrcVars[2].get():
             global mvideoUrl
