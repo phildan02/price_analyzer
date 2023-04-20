@@ -15,7 +15,7 @@ options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option("useAutomationExtension", False)
-options.add_argument("--window-position=-32000,-32000")
+# options.add_argument("--window-position=-32000,-32000")
 # options.add_argument("--headless")
 # service = Service(executable_path="C:\Philipp\coding\diploma_work\price_analyzer\chromedriver\chromedriver.exe")
 
@@ -201,8 +201,6 @@ def citilinkGetData():
                 lastPageIndex = totalNumElems // 48 + 1
                 lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 48
 
-        print(lastPageIndex)
-        print(lastPageNumElems)
 
         urlPageIndStartPos = citilinkUrl.find("p=")
         urlPageIndEndPos = citilinkUrl.find("&", urlPageIndStartPos)
@@ -227,23 +225,38 @@ def citilinkGetData():
                 pageElems = driver.find_elements(By.CSS_SELECTOR, '.app-catalog-1bogmvw > *')
                 driver.execute_script("window.scrollBy(0, 600)")
 
-            ids = []
 
+            ids = []
             for a in range(len(pageElems)):
                 ids.append(pageElems[a].get_attribute('data-meta-product-id'))
 
-            outOfStock = []
-
+            idsOutOfStock = []
             for b in range(len(pageElems)):
-                outOfStock.append(driver.find_element(By.XPATH, "//div[@data-meta-product-id = '"+ids[b]+"']").find_element(By.CLASS_NAME, 'e1j9birj0').text)
+                try:
+                    outOfStockElem = driver.find_element(By.XPATH, "//div[@data-meta-product-id = "+ids[b]+"]").find_element(By.CLASS_NAME, 'e9prjkn0').text
+                    if outOfStockElem == "Нет в наличии":
+                        idsOutOfStock.append(ids[b])
+                except:
+                    continue
+            
+            idsInStock = []
+            if len(idsOutOfStock) != 0:
+                c = 0
+                d = 0
+                while c < len(ids):
+                    if ids[c] == idsOutOfStock[d]:
+                        c += 1
+                        d += 1
+                    else:
+                        idsInStock.append(ids[c])
+                        c += 1
+            else:
+                idsInStock = ids
 
-            print(outOfStock)
 
-            # for x in pagePriceElems:
-            #     prices.append(x.text)
-
-            # for y in pageNameElems:
-            #     names.append(y.text)
+            for s in range(len(idsInStock)):
+                prices.append(driver.find_element(By.XPATH, "//div[@data-meta-product-id = "+idsInStock[s]+"]").find_element(By.CLASS_NAME, 'e1j9birj0').text)
+                names.append(driver.find_element(By.XPATH, "//div[@data-meta-product-id = "+idsInStock[s]+"]").find_element(By.CLASS_NAME, 'e1259i3g0').text)
 
             pageIndex += 1
             citilinkUrl = str(pageIndex).join(urlWithoutPageInd)
@@ -324,6 +337,7 @@ def mvideoGetData():
                 lastPageIndex = totalNumElems // 24 + 1
                 lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 24
 
+        print(lastPageNumElems)
  
         urlPageIndPos = mvideoUrl.find("page=")
         urlWithoutPageInd = mvideoUrl[:urlPageIndPos + 5]
@@ -649,7 +663,6 @@ def correctnessCheck():
             else:
                 citilinkUrl = f'https://www.citilink.ru/catalog/fleshki/?p=1&sorting=price_asc&pf=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrandsCrop}&f=available.all%2Cdiscount.any%2Crating.any{citilinkUrlBrands}&pprice_min={prcMinEntry.get()}&pprice_max={prcMaxEntry.get()}&price_min={prcMinEntry.get()}&price_max={prcMaxEntry.get()}'
 
-            print(citilinkUrl)
 
         if rsrcVars[2].get():
             global mvideoUrl
@@ -668,7 +681,7 @@ def correctnessCheck():
                 mvideoUrl = f'https://www.mvideo.ru/komputernaya-tehnika-4107/sistemnye-bloki-80?{mvideoUrlBrands}&f_tolko-v-nalichii=da&{mvideoUrlPriceRange}&sort=price_asc&page=1'
             else:
                 mvideoUrl = f'https://www.mvideo.ru/komputernye-aksessuary-24/flesh-nakopiteli-185?{mvideoUrlBrands}&f_tolko-v-nalichii=da&{mvideoUrlPriceRange}&sort=price_asc&page=1'
-
+            print(mvideoUrl)
 
         global rsrcThreads
         rsrcThreads = []
