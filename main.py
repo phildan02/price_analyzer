@@ -114,7 +114,8 @@ def dnsGetData():
 
         l = 0
         for k in tableDns.get_children(""):
-            l += 1
+            if tableDns.set(k, 0) != "Товары не найдены" and tableDns.set(k, 0) != "Ошибка получения информации":
+                l += 1
         print(l)
 
 
@@ -215,7 +216,6 @@ def citilinkGetData():
             if pageIndex == lastPageIndex:
                 pageNumElems = lastPageNumElems
 
-            priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1j9birj0')))
             nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'e1259i3g0')))
 
             pageElems = driver.find_elements(By.CSS_SELECTOR, '.app-catalog-1bogmvw > *')
@@ -261,12 +261,17 @@ def citilinkGetData():
             pageIndex += 1
             citilinkUrl = str(pageIndex).join(urlWithoutPageInd)
 
-        for g in range(len(prices)):
-            tableCitilink.insert("", END, values=(names[g], prices[g]))
+
+        if len(prices) != 0 and len(names) != 0:
+            for g in range(len(prices)):
+                tableCitilink.insert("", END, values=(names[g], prices[g]))
+        else:
+            tableCitilink.insert("", END, values=("Товары не найдены", ""))
 
         l = 0
         for k in tableCitilink.get_children(""):
-            l += 1
+            if tableCitilink.set(k, 0) != "Товары не найдены" and tableCitilink.set(k, 0) != "Ошибка получения информации":
+                l += 1
         print(l)
 
 
@@ -337,7 +342,6 @@ def mvideoGetData():
                 lastPageIndex = totalNumElems // 24 + 1
                 lastPageNumElems = totalNumElems - (lastPageIndex - 1) * 24
 
-        print(lastPageNumElems)
  
         urlPageIndPos = mvideoUrl.find("page=")
         urlWithoutPageInd = mvideoUrl[:urlPageIndPos + 5]
@@ -351,23 +355,38 @@ def mvideoGetData():
             if pageIndex == lastPageIndex:
                 pageNumElems = lastPageNumElems
 
-            priceTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'price__main-value')))
             nameTargetElem = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.CLASS_NAME, 'product-title__text')))
             
-            pagePriceElems = driver.find_elements(By.CLASS_NAME, 'price__main-value')
             pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-title__text')
 
-            while len(pagePriceElems) != pageNumElems or len(pageNameElems) != pageNumElems:
+            while len(pageNameElems) != pageNumElems:
                 time.sleep(0.5)
-                pagePriceElems = driver.find_elements(By.CLASS_NAME, 'price__main-value')
                 pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-title__text')
                 driver.execute_script("window.scrollBy(0, 800)")
 
-            for x in pagePriceElems:
-                prices.append(x.text[:-2])
+            driver.execute_script("window.scrollTo(0, 0)")
+            
+            pageNameElemsLinks = []
+            for j in range(len(pageNameElems)):
+                pageNameElemsLinks.append(pageNameElems[j].get_attribute('href')[21:])
+            print(pageNameElemsLinks)
 
-            for y in pageNameElems:
-                names.append(y.text)
+            parent = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[0]+"' and @class='product-title__text']/../../../following-sibling::div").find_element(By.CLASS_NAME, 'price__main-value').text
+
+            print(parent)
+
+            driver.execute_script("window.scrollTo(0, 0)")
+
+
+
+
+
+
+            # for x in pagePriceElems:
+            #     prices.append(x.text[:-2])
+
+            # for y in pageNameElems:
+            #     names.append(y.text)
 
             pageIndex += 1
             mvideoUrl = urlWithoutPageInd + str(pageIndex)
@@ -378,7 +397,8 @@ def mvideoGetData():
 
         l = 0
         for k in tableMvideo.get_children(""):
-            l += 1
+            if tableMvideo.set(k, 0) != "Товары не найдены" and tableMvideo.set(k, 0) != "Ошибка получения информации":
+                l += 1
         print(l)
 
 
