@@ -301,7 +301,8 @@ def mvideoGetData():
     run_on_insecure_origins=True)
 
     try:
-        global mvideoUrl
+        # global mvideoUrl
+        mvideoUrl = "https://www.mvideo.ru/komputernaya-tehnika-4107/monitory-101/f/category=monitory-1263?page=6"
 
         prices = []
         names = []
@@ -364,29 +365,53 @@ def mvideoGetData():
                 pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-title__text')
                 driver.execute_script("window.scrollBy(0, 800)")
 
+            for f in range(len(pageNameElems)):
+                names.append(pageNameElems[f].text)
+
+
             driver.execute_script("window.scrollTo(0, 0)")
             
             pageNameElemsLinks = []
             for j in range(len(pageNameElems)):
                 pageNameElemsLinks.append(pageNameElems[j].get_attribute('href')[21:])
-            print(pageNameElemsLinks)
 
-            parent = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[0]+"' and @class='product-title__text']/../../../following-sibling::div").find_element(By.CLASS_NAME, 'price__main-value').text
+            pageNameElemsLinksOoS = []
+            for h in range(len(pageNameElemsLinks)):
+                if ctgsBox.current() == 0:
+                    try:
+                        priceParentElem = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[h]+"' and @class='product-title__text']/../../../following-sibling::div")
+                        try:
+                            priceElem = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[h]+"' and @class='product-title__text']/../../../following-sibling::div").find_element(By.CLASS_NAME, 'price__main-value')
+                            prices.append(priceElem.text[:-2])
+                        except:
+                            pageNameElemsLinksOoS.append(pageNameElemsLinks[h])
+                    except:
+                        driver.execute_script("window.scrollBy(0, 800)")
+                        priceParentElem = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[h]+"' and @class='product-title__text']/../../../following-sibling::div")
+                        try:
+                            priceElem = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[h]+"' and @class='product-title__text']/../../../following-sibling::div").find_element(By.CLASS_NAME, 'price__main-value')
+                            prices.append(priceElem.text[:-2])
+                        except:
+                            pageNameElemsLinksOoS.append(pageNameElemsLinks[h])
+                else:
+                    try:
+                        priceParentElem = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[h]+"' and @class='product-title__text']/../../../following-sibling::div/following-sibling::div")
+                        try:
+                            priceElem = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[h]+"' and @class='product-title__text']/../../../following-sibling::div/following-sibling::div").find_element(By.CLASS_NAME, 'price__main-value')
+                            prices.append(priceElem.text[:-2])
+                        except:
+                            pageNameElemsLinksOoS.append(pageNameElemsLinks[h])
+                    except:
+                        driver.execute_script("window.scrollBy(0, 800)")
+                        priceParentElem = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[h]+"' and @class='product-title__text']/../../../following-sibling::div/following-sibling::div")
+                        try:
+                            priceElem = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[h]+"' and @class='product-title__text']/../../../following-sibling::div/following-sibling::div").find_element(By.CLASS_NAME, 'price__main-value')
+                            prices.append(priceElem.text[:-2])
+                        except:
+                            pageNameElemsLinksOoS.append(pageNameElemsLinks[h])
 
-            print(parent)
-
-            driver.execute_script("window.scrollTo(0, 0)")
-
-
-
-
-
-
-            # for x in pagePriceElems:
-            #     prices.append(x.text[:-2])
-
-            # for y in pageNameElems:
-            #     names.append(y.text)
+            print(prices)
+            print(pageNameElemsLinksOoS)
 
             pageIndex += 1
             mvideoUrl = urlWithoutPageInd + str(pageIndex)
