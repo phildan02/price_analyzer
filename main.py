@@ -124,7 +124,7 @@ def dnsGetData():
             for g in range(len(prices)):
                 tableDns.insert("", END, values=(names[g], prices[g]))
         else:
-            tableDns.insert("", END, values=("Ошибка получения информации", ""))
+            tableDns.insert("", END, values=("Товары не найдены", ""))
 
     driver.quit()
 
@@ -280,7 +280,7 @@ def citilinkGetData():
             for g in range(len(prices)):
                 tableCitilink.insert("", END, values=(names[g], prices[g]))
         else:
-            tableCitilink.insert("", END, values=("Ошибка получения информации", ""))
+            tableCitilink.insert("", END, values=("Товары не найдены", ""))
 
     driver.quit()
 
@@ -436,7 +436,7 @@ def mvideoGetData():
             for g in range(len(prices)):
                 tableMvideo.insert("", END, values=(names[g], prices[g]))
         else:
-            tableMvideo.insert("", END, values=("Ошибка получения информации", ""))
+            tableMvideo.insert("", END, values=("Товары не найдены", ""))
 
     driver.quit()
 
