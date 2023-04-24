@@ -364,9 +364,6 @@ def mvideoGetData():
                 pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-title__text')
                 driver.execute_script("window.scrollBy(0, 800)")
 
-            for f in range(len(pageNameElems)):
-                names.append(pageNameElems[f].text)
-
 
             driver.execute_script("window.scrollTo(0, 0)")
             time.sleep(1)
@@ -377,21 +374,20 @@ def mvideoGetData():
                 pageNameElemsLinks.append(pageNameElems[j].get_attribute('href')[21:])
 
 
-
             siblingPath = ""
             if ctgsBox.current() == 0:
                 siblingPath = "/../../../following-sibling::div"
             else:
                 siblingPath = "/../../../following-sibling::div/following-sibling::div"
 
+            pageNameElemsLinksOoS = []
             def priceElemFind(nameElemLink):
                 try:
                     priceElem = driver.find_element(By.XPATH, "//a[@href='"+nameElemLink+"' and contains(@class, 'product-title__text')]"+siblingPath+"").find_element(By.CLASS_NAME, 'price__main-value')
                     prices.append(priceElem.text[:-2])
                 except:
-                    pageNameElemsLinksOoS.append(pageNameElemsLinks[h])
+                    pageNameElemsLinksOoS.append(nameElemLink)
 
-            pageNameElemsLinksOoS = []
             for h in range(len(pageNameElemsLinks)):
                 try:
                     priceParentElem = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[h]+"' and contains(@class, 'product-title__text')]"+siblingPath+"")
@@ -402,16 +398,31 @@ def mvideoGetData():
                     priceParentElem = driver.find_element(By.XPATH, "//a[@href='"+pageNameElemsLinks[h]+"' and contains(@class, 'product-title__text')]"+siblingPath+"")
                     priceElemFind(pageNameElemsLinks[h])
 
+            m = 0
+            n = 0
+            if len(pageNameElemsLinksOoS):
+                while n < len(pageNameElemsLinks):
+                    if pageNameElemsLinks[n] == pageNameElemsLinksOoS[m]:
+                        n += 1
+                        if m != len(pageNameElemsLinksOoS) - 1:
+                            m += 1
+                    else:
+                        names.append(pageNameElems[n].text)
+                        n += 1
+            else:
+                for p in range(len(pageNameElems)):
+                    names.append(pageNameElems[p].text)
+
 
             pageIndex += 1
             mvideoUrl = urlWithoutPageInd + str(pageIndex)
 
 
-        print(prices)
-        print(pageNameElemsLinksOoS)
-
         for g in range(len(prices)):
             tableMvideo.insert("", END, values=(names[g], prices[g]))
+
+        if len(prices) == 0:
+            tableMvideo.insert("", END, values=("Товары не найдены", ""))
 
         l = 0
         for k in tableMvideo.get_children(""):
