@@ -15,7 +15,7 @@ options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option("useAutomationExtension", False)
-# options.add_argument("--window-position=-32000,-32000")
+options.add_argument("--window-position=-32000,-32000")
 # options.add_argument("--headless")
 # service = Service(executable_path="C:\Philipp\coding\diploma_work\price_analyzer\chromedriver\chromedriver.exe")
 
@@ -715,13 +715,11 @@ def correctnessCheck():
 
         if rsrcVars[2].get():
             global mvideoUrl
-
             mvideoUrlBrands = "f_brand="
             for e in range(5):
                 if brandVars[e].get() == 1:
                     mvideoUrlBrands += brandNamesVars[e].get().lower().replace('-', '').replace(' ', '-') + ","
             mvideoUrlBrands = mvideoUrlBrands[:-1]
-
             mvideoUrlPriceRange = f'f_price={prcMinEntry.get()}-{prcMaxEntry.get()}'
 
             if ctgsBox.current() == 0:
@@ -730,7 +728,7 @@ def correctnessCheck():
                 mvideoUrl = f'https://www.mvideo.ru/komputernaya-tehnika-4107/sistemnye-bloki-80?{mvideoUrlBrands}&f_tolko-v-nalichii=da&{mvideoUrlPriceRange}&sort=price_asc&page=1'
             else:
                 mvideoUrl = f'https://www.mvideo.ru/komputernye-aksessuary-24/flesh-nakopiteli-185?{mvideoUrlBrands}&f_tolko-v-nalichii=da&{mvideoUrlPriceRange}&sort=price_asc&page=1'
-            print(mvideoUrl)
+
 
         global rsrcThreads
         rsrcThreads = []
