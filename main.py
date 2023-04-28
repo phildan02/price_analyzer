@@ -9,6 +9,7 @@ import time
 from tkinter import *
 from tkinter import ttk
 from threading import Thread
+import webbrowser
 
 
 options = webdriver.ChromeOptions()
@@ -34,6 +35,8 @@ def dnsGetData():
 
     try:
         global dnsUrl
+        global dnsLinks
+        dnsLinks = []
 
         prices = []
         names = []
@@ -87,7 +90,7 @@ def dnsGetData():
             while len(pagePriceElems) != pageNumElems or len(pageNameElems) != pageNumElems:
                 time.sleep(0.5)
                 pagePriceElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
-                pageNameElems = driver.find_elements(By.CLASS_NAME, 'product-buy__price')
+                pageNameElems = driver.find_elements(By.CLASS_NAME, 'catalog-product__name')
                 driver.execute_script("window.scrollBy(0, 800)")
 
             for x in pagePriceElems:
@@ -95,6 +98,7 @@ def dnsGetData():
 
             for y in pageNameElems:
                 names.append(y.text)
+                dnsLinks.append(y.get_attribute('href'))
 
             pageIndex += 1
             dnsUrl = urlWithoutPageInd + str(pageIndex)
@@ -146,6 +150,8 @@ def citilinkGetData():
 
     try:
         global citilinkUrl
+        global citilinkLinksInStock
+        citilinkLinksInStock = []
 
         prices = []
         names = []
@@ -222,7 +228,7 @@ def citilinkGetData():
 
             while len(pageElems) < pageNumElems:
                 time.sleep(0.5)
-                pageElems = driver.find_elements(By.CSS_SELECTOR, '.app-catalog-1bogmvw > *')
+                pageElems = driver.find_elements(By.CSS_SELECTOR, '.app-catalog-1bogmvw > div')
                 driver.execute_script("window.scrollBy(0, 600)")
 
 
@@ -256,7 +262,9 @@ def citilinkGetData():
 
             for s in range(len(idsInStock)):
                 prices.append(driver.find_element(By.XPATH, "//div[@data-meta-product-id = "+idsInStock[s]+"]").find_element(By.CLASS_NAME, 'e1j9birj0').text)
-                names.append(driver.find_element(By.XPATH, "//div[@data-meta-product-id = "+idsInStock[s]+"]").find_element(By.CLASS_NAME, 'e1259i3g0').text)
+                curNameElem = driver.find_element(By.XPATH, "//div[@data-meta-product-id = "+idsInStock[s]+"]").find_element(By.CLASS_NAME, 'e1259i3g0')
+                citilinkLinksInStock.append(curNameElem.get_attribute('href'))
+                names.append(curNameElem.text)
 
             pageIndex += 1
             citilinkUrl = str(pageIndex).join(urlWithoutPageInd)
@@ -302,6 +310,8 @@ def mvideoGetData():
 
     try:
         global mvideoUrl
+        global mvideoLinksInStock
+        mvideoLinksInStock = []
 
         prices = []
         names = []
@@ -408,10 +418,13 @@ def mvideoGetData():
                             m += 1
                     else:
                         names.append(pageNameElems[n].text)
+                        mvideoLinksInStock.append(pageNameElems[n].get_attribute('href'))
                         n += 1
             else:
                 for p in range(len(pageNameElems)):
                     names.append(pageNameElems[p].text)
+                    mvideoLinksInStock.append(pageNameElems[p].get_attribute('href'))
+
 
 
             pageIndex += 1
@@ -645,6 +658,31 @@ tableMvideo.grid(row=0, column=0, sticky='nsew')
 mvideoScrollbar = ttk.Scrollbar(tableMvideoFrame, orient=VERTICAL, command=tableMvideo.yview)
 tableMvideo.configure(yscroll=mvideoScrollbar.set)
 mvideoScrollbar.grid(row=0, column=1, sticky='ns')
+
+
+def onSelect(event):
+    global mvideoLinksInStock
+    if notebook.index(notebook.select()) == 0:
+        table = tableDns
+        linksInStock = dnsLinks
+    elif notebook.index(notebook.select()) == 1:
+        table = tableCitilink
+        linksInStock = citilinkLinksInStock
+    else:
+        table = tableMvideo
+        linksInStock = mvideoLinksInStock
+    if not table.focus():
+        return
+    if table.set(table.focus(), 0) == "Товары не найдены":
+        return
+    
+    idSelItem = table.focus()
+    numSelItem = int(idSelItem[1:].lstrip('0'), 16)
+    webbrowser.open_new(linksInStock[numSelItem - 1])
+
+tableDns.bind('<Double-ButtonRelease-1>', onSelect)
+tableCitilink.bind('<Double-ButtonRelease-1>', onSelect)
+tableMvideo.bind('<Double-ButtonRelease-1>', onSelect)
 
 
 notebook.add(tableDnsFrame, text="DNS")
