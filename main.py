@@ -5,6 +5,8 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium_stealth import stealth
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+import undetected_chromedriver as uc
 import time
 from tkinter import *
 from tkinter import ttk
@@ -14,24 +16,17 @@ import webbrowser
 
 options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
+# options.add_argument("--window-position=-32000,-32000")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option("useAutomationExtension", False)
-options.add_argument("--window-position=-32000,-32000")
 # options.add_argument("--headless")
 # service = Service(executable_path="C:\Philipp\coding\diploma_work\price_analyzer\chromedriver\chromedriver.exe")
 
 def dnsGetData():
-    driver = webdriver.Chrome(options=options)
-    # driver = webdriver.Chrome(service=service, options=options)
+    caps = DesiredCapabilities().CHROME
+    caps["pageLoadStrategy"] = "none"
 
-    stealth(driver=driver,
-        languages=["ru-RU", "ru"],
-        vendor="Google Inc.",
-        platform="Win32",
-        webgl_vendor="Intel Inc.",
-        renderer="Intel Iris OpenGL Engine",
-        fix_hairline=True,
-        run_on_insecure_origins=True)
+    driver = uc.Chrome(desired_capabilities=caps, driver_executable_path="C:\Philipp\coding\diploma_work\price_analyzer\chromedriver\chromedriver.exe")
 
     try:
         global dnsUrl
@@ -137,6 +132,7 @@ def dnsGetData():
 
 
 def citilinkGetData():
+    # driver = webdriver.Chrome(service=service, options=options)
     driver = webdriver.Chrome(options=options)
 
     stealth(driver=driver,
@@ -768,6 +764,17 @@ def correctnessCheck():
                 mvideoUrl = f'https://www.mvideo.ru/komputernye-aksessuary-24/flesh-nakopiteli-185?{mvideoUrlBrands}&f_tolko-v-nalichii=da&{mvideoUrlPriceRange}&sort=price_asc&page=1'
 
 
+        if tableDns.get_children("") != ():
+            for x in tableDns.get_children(""): 
+                tableDns.delete(x)
+        if tableCitilink.get_children("") != ():
+            for x in tableCitilink.get_children(""): 
+                tableCitilink.delete(x)
+        if tableMvideo.get_children("") != ():
+            for x in tableMvideo.get_children(""): 
+                tableMvideo.delete(x)
+
+
         global rsrcThreads
         rsrcThreads = []
 
@@ -785,15 +792,6 @@ def correctnessCheck():
         disableInterface()
         processInfo["text"] = "Получение информации о товарах..."
 
-        if tableDns.get_children("") != ():
-            for x in tableDns.get_children(""): 
-                tableDns.delete(x)
-        if tableCitilink.get_children("") != ():
-            for x in tableCitilink.get_children(""): 
-                tableCitilink.delete(x)
-        if tableMvideo.get_children("") != ():
-            for x in tableMvideo.get_children(""): 
-                tableMvideo.delete(x)
 
 
 def disableInterface():
