@@ -16,7 +16,7 @@ import webbrowser
 
 options = webdriver.ChromeOptions()
 options.add_argument("start-maximized")
-# options.add_argument("--window-position=-32000,-32000")
+options.add_argument("--window-position=-32000,-32000")
 options.add_experimental_option("excludeSwitches", ["enable-automation"])
 options.add_experimental_option("useAutomationExtension", False)
 # options.add_argument("--headless")
@@ -26,7 +26,7 @@ def dnsGetData():
     caps = DesiredCapabilities().CHROME
     caps["pageLoadStrategy"] = "none"
 
-    driver = uc.Chrome(desired_capabilities=caps, driver_executable_path="C:\Philipp\coding\diploma_work\price_analyzer\chromedriver\chromedriver.exe")
+    driver = uc.Chrome(desired_capabilities=caps)
 
     try:
         global dnsUrl
@@ -126,7 +126,6 @@ def dnsGetData():
             tableDns.insert("", END, values=("Товары не найдены", ""))
 
     driver.quit()
-
 
 
 
